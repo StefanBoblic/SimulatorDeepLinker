@@ -7,11 +7,17 @@
 
 import SwiftUI
 
+// MARK: - App
+
 @main
 struct SimulatorDeepLinkerApp: App {
+    @StateObject private var deepLinkStore = DeepLinkStore()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(deepLinkStore)
+                .frame(minWidth: 860, minHeight: 560)
         }
     }
 }
