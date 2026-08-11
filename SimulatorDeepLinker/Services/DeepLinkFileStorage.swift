@@ -9,17 +9,29 @@ import Foundation
 
 protocol DeepLinkFileStorage {
     func loadDeepLinks() throws -> [DeepLinkItem]
+    func loadDeepLinks(from fileURL: URL) throws -> [DeepLinkItem]
     func saveDeepLinks(_ deepLinks: [DeepLinkItem]) throws
+    func saveDeepLinks(_ deepLinks: [DeepLinkItem], to fileURL: URL) throws
     func storageFileURL() throws -> URL
+    func defaultStorageFileURL() throws -> URL
+    func setCustomStorageFileURL(_ fileURL: URL?)
+    var usesCustomStorageFile: Bool { get }
 }
 
 final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
+    private static let customStoragePathKey = "customDeepLinkStoragePath"
+
     private let fileManager: FileManager
+    private let userDefaults: UserDefaults
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
 
-    init(fileManager: FileManager = FileManager.default) {
+    init(
+        fileManager: FileManager = FileManager.default,
+        userDefaults: UserDefaults = .standard
+    ) {
         self.fileManager = fileManager
+        self.userDefaults = userDefaults
 
         let jsonEncoder = JSONEncoder()
         jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
@@ -32,8 +44,10 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
     }
 
     func loadDeepLinks() throws -> [DeepLinkItem] {
-        let fileURL = try storageFileURL()
+        try loadDeepLinks(from: storageFileURL())
+    }
 
+    func loadDeepLinks(from fileURL: URL) throws -> [DeepLinkItem] {
         guard fileManager.fileExists(atPath: fileURL.path) else {
             return []
         }
@@ -43,7 +57,10 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
     }
 
     func saveDeepLinks(_ deepLinks: [DeepLinkItem]) throws {
-        let fileURL = try storageFileURL()
+        try saveDeepLinks(deepLinks, to: storageFileURL())
+    }
+
+    func saveDeepLinks(_ deepLinks: [DeepLinkItem], to fileURL: URL) throws {
         let directoryURL = fileURL.deletingLastPathComponent()
 
         try fileManager.createDirectory(
@@ -56,6 +73,15 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
     }
 
     func storageFileURL() throws -> URL {
+        if let customStoragePath = userDefaults.string(forKey: Self.customStoragePathKey),
+           customStoragePath.isEmpty == false {
+            return URL(fileURLWithPath: customStoragePath).standardizedFileURL
+        }
+
+        return try defaultStorageFileURL()
+    }
+
+    func defaultStorageFileURL() throws -> URL {
         let applicationSupportURL = try fileManager.url(
             for: .applicationSupportDirectory,
             in: .userDomainMask,
@@ -68,5 +94,17 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
         return applicationSupportURL
             .appendingPathComponent(appFolderName, isDirectory: true)
             .appendingPathComponent("deeplinks.json", isDirectory: false)
+    }
+
+    func setCustomStorageFileURL(_ fileURL: URL?) {
+        if let fileURL {
+            userDefaults.set(fileURL.standardizedFileURL.path, forKey: Self.customStoragePathKey)
+        } else {
+            userDefaults.removeObject(forKey: Self.customStoragePathKey)
+        }
+    }
+
+    var usesCustomStorageFile: Bool {
+        userDefaults.string(forKey: Self.customStoragePathKey)?.isEmpty == false
     }
 }

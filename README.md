@@ -1,195 +1,150 @@
 # SimulatorDeepLinker
 
-<img width="906" height="621" alt="image" src="https://github.com/user-attachments/assets/986b5b87-b059-4b04-8e8c-634eebd65769" />
-
 <p align="center">
-  <img src="docs/logo.png" alt="SimulatorDeepLinker logo" width="180">
+  <img src="docs/logo.png" alt="SimulatorDeepLinker icon" width="160">
 </p>
 
-<p align="center">
-  A small macOS utility for saving deep links and opening them in the iOS Simulator.
-</p>
-
-<p align="center">
-  <a href="https://github.com/StefanBoblic/SimulatorDeepLinker/releases">Releases</a>
-  ·
-  <a href="#installation">Installation</a>
-  ·
-  <a href="#usage">Usage</a>
-</p>
-
----
-
-## Overview
-
-**SimulatorDeepLinker** is a lightweight macOS app for iOS developers who often need to test deep links, universal links, and app-specific URL schemes in the iOS Simulator.
-
-Instead of keeping links in notes, chats, or browser tabs, you can save them in one place and open any link in the currently running simulator with one click.
-
-Under the hood, the app uses:
-
-```bash
-xcrun simctl openurl booted "https://example.com/path"
-```
-
----
+A native macOS app for organizing and testing deep links across iOS and Android devices.
 
 ## Features
 
-* Save frequently used deep links
-* Open links in the currently booted iOS Simulator
-* Support for universal links, regular web links, and custom URL schemes
-* Search saved links
-* Edit and delete saved links
-* Local file-based storage
-* Native macOS SwiftUI interface
-* No backend, no tracking, no accounts
+- Save, search, group, tag, favorite, import, export, and batch-open deep links
+- Discover booted iOS Simulators, paired iPhones and iPads, and connected Android devices
+- Open links through `simctl`, `devicectl`, or ADB over USB and Wi-Fi
+- Define environments and substitute `{{KEY}}` or `${KEY}` variables in URLs
+- Use the built-in Development and Production environments or create UAT, QA, Staging, and custom environments
+- Generate a QR code for opening a link on any nearby device
+- Review a local history of successful launches and errors
+- Add a URL directly from the clipboard
+- Use the interface in English or Russian
+- Share the JSON storage file with Raycast or another local tool
+- Keep everything local — no accounts, analytics, or tracking
 
----
+## Install
 
-## Installation
-
-### Homebrew
-
-SimulatorDeepLinker is available via Homebrew Cask from a custom tap:
+With Homebrew:
 
 ```bash
 brew tap StefanBoblic/tap
 brew install --cask simulator-deep-linker
 ```
 
-Then launch it:
+Or download the latest app from [GitHub Releases](https://github.com/StefanBoblic/SimulatorDeepLinker/releases/latest), unzip it, and move it to `/Applications`.
+
+## Use
+
+1. Start an iOS Simulator, connect an Android device, or pair an Apple device with Xcode.
+2. Add a URL such as `myapp://product/123` or `https://example.com/product/123`.
+3. Choose a discovered target and, when needed, enter the app bundle identifier or Android package.
+4. Click **Open** or press `⌘↩`.
+
+SimulatorDeepLinker uses Apple's and Android's developer tools:
 
 ```bash
-open -a SimulatorDeepLinker
+xcrun simctl openurl <device> <url>
+xcrun devicectl device process launch --device <device> <bundle-id> --payload-url <url>
+adb -s <device> shell am start -a android.intent.action.VIEW -d <url>
 ```
 
-### Update
+Xcode is required for Apple targets. Android Platform Tools are required for Android targets.
+
+## Environments and Wi-Fi devices
+
+Development and Production are created automatically. Configure their variables in **Settings → Environments**, or add UAT, QA, Staging, and any other environment you need. Built-in environments cannot be deleted, but their variables remain fully editable.
+
+Use variables such as `{{BASE_URL}}/product/${PRODUCT_ID}` in saved links. Environments are stored in `environments.json` next to `deeplinks.json`, so the app, CLI, and Raycast extension use the same values.
+
+`BASE_URL` and `PRODUCT_ID` are examples, not built-in values. You choose each variable name and define its value in **Settings → Environments**, for example `BASE_URL=https://dev.example.com` for Development and `BASE_URL=https://example.com` for Production.
+
+```json
+[
+  {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "name": "Development",
+    "variables": {
+      "BASE_URL": "https://dev.example.com",
+      "PRODUCT_ID": "42"
+    },
+    "isBuiltIn": true
+  }
+]
+```
+
+For wireless Android debugging, pair the device once with its address and pairing code, then connect to its ADB address from the target section.
+
+## Groups, tags, and environment resolution
+
+- **Group** is one optional broad category, such as `Authentication`, `Catalog`, or `Checkout`. Groups become sidebar filters.
+- **Tags** are multiple comma-separated labels, such as `ios, smoke, regression`. Tags are searchable and are useful for platforms, test suites, and temporary labels.
+- **Environment** supplies values for placeholders in a saved URL. Selecting an environment never modifies the saved template; it only changes the resolved preview, the URL sent by **Open**, and the generated QR code.
+
+For example, save this template once:
+
+```text
+{{BASE_URL}}/product/${PRODUCT_ID}
+```
+
+With `BASE_URL=https://dev.example.com` and `PRODUCT_ID=42`, Development resolves it to:
+
+```text
+https://dev.example.com/product/42
+```
+
+Production can resolve the same saved template to `https://example.com/product/42`. Placeholders without configured values remain unchanged, so configure every required variable before opening the link. The same guide is available inside **Settings → Guide**.
+
+## Shared storage
+
+Open **Settings → Shared Storage** to choose an existing JSON file, create a shared copy, copy its path, or return to the default location. Changes made by external tools are reloaded automatically.
+
+The file contains a JSON array. Dates use ISO 8601:
+
+```json
+[
+  {
+    "id": "8DB1E10D-20DB-4A4B-95B8-845156B4873A",
+    "title": "Product details",
+    "urlString": "myapp://product/123",
+    "group": "Shop",
+    "tags": ["product", "debug"],
+    "isFavorite": true,
+    "createdAt": "2026-08-11T09:00:00Z",
+    "updatedAt": "2026-08-11T09:00:00Z"
+  }
+]
+```
+
+## CLI
+
+Build the native command-line executable:
 
 ```bash
-brew update
-brew upgrade --cask simulator-deep-linker
+cd CLI
+swift build -c release
 ```
 
-### Uninstall
+Examples:
 
 ```bash
-brew uninstall --cask simulator-deep-linker
+.build/release/simulator-deep-linker list
+.build/release/simulator-deep-linker environments
+.build/release/simulator-deep-linker resolve Product --environment Development
+.build/release/simulator-deep-linker open Product --environment UAT
+.build/release/simulator-deep-linker open Product --platform android --target emulator-5554
 ```
 
-To remove the app and local saved data:
+Use `--storage /path/to/deeplinks.json` or the `SIMULATOR_DEEP_LINKER_STORAGE` environment variable when the CLI cannot discover the app's custom storage automatically.
+
+## Raycast extension
+
+The extension in `RaycastExtension` provides fast search, environment selection, resolved URL copying, and one-action opening. It detects the active storage automatically and invokes `xcrun` or `adb` directly, so the CLI and manual file selection are not required.
 
 ```bash
-brew uninstall --cask --zap simulator-deep-linker
+./scripts/install_raycast_extension.sh
 ```
 
----
-
-## Manual Installation
-
-You can also download the latest `.zip` from the [Releases](https://github.com/StefanBoblic/SimulatorDeepLinker/releases) page.
-
-1. Download `SimulatorDeepLinker-<version>.zip`
-2. Unzip it
-3. Move `SimulatorDeepLinker.app` to `/Applications`
-4. Launch the app
-
-If macOS blocks the app on first launch, open it via:
-
-```bash
-open /Applications/SimulatorDeepLinker.app
-```
-
-or allow it in:
-
-```text
-System Settings → Privacy & Security
-```
-
----
-
-## Usage
-
-1. Start an iOS Simulator.
-2. Open SimulatorDeepLinker.
-3. Add a link, for example:
-
-```text
-https://example.com/product/123
-```
-
-or:
-
-```text
-myapp://product/123
-```
-
-4. Click **Open**.
-
-The app will send the link to the currently booted simulator.
-
----
-
-## Link Types
-
-### Universal Links
-
-```text
-https://example.com/some/path
-```
-
-Universal links are opened through the simulator environment and can be handled by your installed app if Associated Domains are configured correctly.
-
-### Custom URL Schemes
-
-```text
-myapp://screen/details?id=123
-```
-
-Custom schemes are passed to the simulator and opened by an app that has registered the scheme.
-
-### Web Links
-
-```text
-https://apple.com
-```
-
-Regular web links will open in Safari inside the iOS Simulator.
-
----
-
-## Local Storage
-
-Saved links are stored locally on your Mac in Application Support as a JSON file.
-
-Typical location:
-
-```text
-~/Library/Application Support/<bundle-id>/deeplinks.json
-```
-
-The app does not sync or upload your links anywhere.
-
----
-
-## Requirements
-
-* macOS
-* Xcode installed
-* iOS Simulator available
-* At least one simulator booted before opening a link
-
-You can check that the simulator command works manually:
-
-```bash
-xcrun simctl openurl booted "https://example.com"
-```
-
----
+Open SimulatorDeepLinker once before using the extension. The app writes `integration.json` in its Application Support directory whenever the active storage changes. The extension falls back to the default storage and offers an optional override in Raycast preferences.
 
 ## Development
-
-Clone the repository:
 
 ```bash
 git clone https://github.com/StefanBoblic/SimulatorDeepLinker.git
@@ -197,112 +152,14 @@ cd SimulatorDeepLinker
 open SimulatorDeepLinker.xcodeproj
 ```
 
-Build and run the app from Xcode.
+Build and run the app from Xcode. The target intentionally does not use App Sandbox because sandboxed apps cannot execute `xcrun`.
 
-### Important
+The source follows MVVM: SwiftUI views bind to view models, view models coordinate protocol-based services, and stores own persisted application data. This keeps command execution, device discovery, and storage independently testable.
 
-The app must not run inside App Sandbox, because `xcrun` cannot be used from a sandboxed macOS app.
-
-If you see this error:
-
-```text
-xcrun: error: cannot be used within an App Sandbox.
-```
-
-Disable App Sandbox in Xcode:
-
-```text
-Target → Signing & Capabilities → App Sandbox
-```
-
----
-
-## Release Packaging
-
-To build a release archive and zip the app:
+To package a release:
 
 ```bash
 ./scripts/package_release.sh 0.1.0
 ```
 
-The script creates:
-
-```text
-build/SimulatorDeepLinker-0.1.0.zip
-```
-
-and prints the `sha256` needed for the Homebrew Cask.
-
----
-
-## Homebrew Tap
-
-The Homebrew Cask is located in:
-
-```text
-https://github.com/StefanBoblic/homebrew-tap
-```
-
-Cask path:
-
-```text
-Casks/simulator-deep-linker.rb
-```
-
-Install command:
-
-```bash
-brew tap StefanBoblic/tap
-brew install --cask simulator-deep-linker
-```
-
----
-
-## Troubleshooting
-
-### `No booted devices`
-
-Start an iOS Simulator first, then try again.
-
-You can open Simulator manually from Xcode:
-
-```text
-Xcode → Open Developer Tool → Simulator
-```
-
-or from terminal:
-
-```bash
-open -a Simulator
-```
-
-### `xcrun: error: cannot be used within an App Sandbox`
-
-Disable App Sandbox in the app target.
-
-This app is intended as a local developer tool and needs to execute `xcrun simctl`.
-
-### Link opens Safari instead of the app
-
-For universal links, make sure that:
-
-* the app is installed in the simulator
-* Associated Domains are configured
-* the domain hosts the correct `apple-app-site-association` file
-* the app build supports the universal link path
-
-For custom URL schemes, make sure the scheme is registered in the app's `Info.plist`.
-
----
-
-## Privacy
-
-SimulatorDeepLinker stores links only locally on your Mac.
-
-It does not collect analytics, send network requests, or use any external backend.
-
----
-
-## License
-
-MIT License
+Saved links stay on your Mac under Application Support. See [LICENSE](LICENSE) for license information.

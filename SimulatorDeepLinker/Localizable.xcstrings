@@ -1,0 +1,1584 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@ • %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ • %2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ • %@"
+          }
+        }
+      }
+    },
+    "%@ exited with code %d. %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ exited with code %2$d. %3$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ завершился с кодом %d. %@"
+          }
+        }
+      }
+    },
+    "%@ was not found. Check the developer tools installation." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ не найден. Проверьте установку инструментов разработчика."
+          }
+        }
+      }
+    },
+    "Add Environment" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить окружение"
+          }
+        }
+      }
+    },
+    "Add from Clipboard" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить из буфера обмена"
+          }
+        }
+      }
+    },
+    "Add to Favorites" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить в избранное"
+          }
+        }
+      }
+    },
+    "All Groups" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все группы"
+          }
+        }
+      }
+    },
+    "Android" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Android"
+          }
+        }
+      }
+    },
+    "Android Emulator" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эмулятор Android"
+          }
+        }
+      }
+    },
+    "Android package (optional)" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пакет Android (необязательно)"
+          }
+        }
+      }
+    },
+    "Booted iOS Simulator" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запущенный iOS Simulator"
+          }
+        }
+      }
+    },
+    "Booted simulator" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запущенный симулятор"
+          }
+        }
+      }
+    },
+    "Booted simulator is enough for the usual workflow: start the iPhone Simulator you need, then click Open." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для обычного сценария достаточно запущенного симулятора: сначала запустите нужный iPhone Simulator, затем нажмите «Открыть»."
+          }
+        }
+      }
+    },
+    "Built In" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Встроенное"
+          }
+        }
+      }
+    },
+    "Changes saved" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изменения сохранены"
+          }
+        }
+      }
+    },
+    "Check that Xcode is installed and a simulator is running." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Убедитесь, что Xcode установлен и симулятор запущен."
+          }
+        }
+      }
+    },
+    "Choose an existing SimulatorDeepLinker JSON file. Its links will replace the current list without changing the previous file." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите существующий JSON-файл SimulatorDeepLinker. Ссылки из него заменят текущий список, а предыдущий файл останется без изменений."
+          }
+        }
+      }
+    },
+    "Choose Deep Link Storage" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбор файла хранилища"
+          }
+        }
+      }
+    },
+    "Choose Existing File…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбрать существующий файл…"
+          }
+        }
+      }
+    },
+    "Clear History" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистить историю"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрыть"
+          }
+        }
+      }
+    },
+    "Connect" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подключить"
+          }
+        }
+      }
+    },
+    "Connect Android over Wi-Fi" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подключить Android по Wi-Fi"
+          }
+        }
+      }
+    },
+    "Copy Path" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скопировать путь"
+          }
+        }
+      }
+    },
+    "Could not change the storage file: %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось изменить файл хранилища: %@"
+          }
+        }
+      }
+    },
+    "Create" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Создать"
+          }
+        }
+      }
+    },
+    "Create a copy of the current links and use it as the new storage file. The previous file remains unchanged." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Создайте копию текущих ссылок и используйте её как новый файл хранилища. Предыдущий файл останется без изменений."
+          }
+        }
+      }
+    },
+    "Create Shared Copy…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Создать общую копию…"
+          }
+        }
+      }
+    },
+    "Create Shared Storage" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Создание общего хранилища"
+          }
+        }
+      }
+    },
+    "Custom file" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пользовательский файл"
+          }
+        }
+      }
+    },
+    "Custom UDID" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Другой UDID"
+          }
+        }
+      }
+    },
+    "Deep link deleted" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Диплинк удалён"
+          }
+        }
+      }
+    },
+    "Deep link saved" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Диплинк сохранён"
+          }
+        }
+      }
+    },
+    "Deep Links" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Диплинки"
+          }
+        }
+      }
+    },
+    "Default file" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Файл по умолчанию"
+          }
+        }
+      }
+    },
+    "Default storage file selected. The custom file remains unchanged." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбран файл хранилища по умолчанию. Пользовательский файл остался без изменений."
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить"
+          }
+        }
+      }
+    },
+    "Delete Selected" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить выбранные"
+          }
+        }
+      }
+    },
+    "Development" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разработка"
+          }
+        }
+      }
+    },
+    "Device" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Устройство"
+          }
+        }
+      }
+    },
+    "Edit Deep Link" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Редактирование диплинка"
+          }
+        }
+      }
+    },
+    "Enter a simulator UDID or choose Booted simulator." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Укажите UDID симулятора или выберите запущенный симулятор."
+          }
+        }
+      }
+    },
+    "Enter the installed app's bundle identifier to open a link on a physical Apple device." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Введите идентификатор установленного приложения, чтобы открыть ссылку на физическом устройстве Apple."
+          }
+        }
+      }
+    },
+    "Environment" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Окружение"
+          }
+        }
+      }
+    },
+    "Environment name" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Название окружения"
+          }
+        }
+      }
+    },
+    "Environments" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Окружения"
+          }
+        }
+      }
+    },
+    "Existing storage file selected." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбран существующий файл хранилища."
+          }
+        }
+      }
+    },
+    "Export…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Экспорт…"
+          }
+        }
+      }
+    },
+    "External Apps" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сторонние приложения"
+          }
+        }
+      }
+    },
+    "External tools can read and write this JSON file. Changes are reloaded automatically while SimulatorDeepLinker is running." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сторонние инструменты могут читать и изменять этот JSON-файл. SimulatorDeepLinker автоматически загружает внешние изменения во время работы."
+          }
+        }
+      }
+    },
+    "Favorite" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Избранное"
+          }
+        }
+      }
+    },
+    "For example: https://example.com/product/123 or myapp://product/123" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Например: https://example.com/product/123 или myapp://product/123"
+          }
+        }
+      }
+    },
+    "For example: Product details" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Например: Карточка товара"
+          }
+        }
+      }
+    },
+    "Group" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Группа"
+          }
+        }
+      }
+    },
+    "Import…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Импорт…"
+          }
+        }
+      }
+    },
+    "Imported %d links." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Импортировано ссылок: %d."
+          }
+        }
+      }
+    },
+    "Installed app bundle identifier" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Идентификатор установленного приложения"
+          }
+        }
+      }
+    },
+    "Invalid URL. Add a scheme such as https:// or myapp://." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Некорректный URL. Добавьте схему, например https:// или myapp://."
+          }
+        }
+      }
+    },
+    "Invalid URL. Check the scheme, for example https://, myapp://, or magnit://." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Некорректный URL. Проверьте схему, например https://, myapp:// или magnit://."
+          }
+        }
+      }
+    },
+    "iOS Simulator" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iOS Simulator"
+          }
+        }
+      }
+    },
+    "IP address and port" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IP-адрес и порт"
+          }
+        }
+      }
+    },
+    "iPhone or iPad" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone или iPad"
+          }
+        }
+      }
+    },
+    "Launch History" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "История запусков"
+          }
+        }
+      }
+    },
+    "Links exported." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ссылки экспортированы."
+          }
+        }
+      }
+    },
+    "Location" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Расположение"
+          }
+        }
+      }
+    },
+    "Name" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Название"
+          }
+        }
+      }
+    },
+    "New" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новый"
+          }
+        }
+      }
+    },
+    "New Deep Link" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новый диплинк"
+          }
+        }
+      }
+    },
+    "New Environment" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новое окружение"
+          }
+        }
+      }
+    },
+    "No command output was returned." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Команда не вернула результат."
+          }
+        }
+      }
+    },
+    "No Launches Yet" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запусков пока нет"
+          }
+        }
+      }
+    },
+    "None" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет"
+          }
+        }
+      }
+    },
+    "Open" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть"
+          }
+        }
+      }
+    },
+    "Open in Simulator" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть в симуляторе"
+          }
+        }
+      }
+    },
+    "Open on a Device" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть на устройстве"
+          }
+        }
+      }
+    },
+    "Open Selected (%lld)" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть выбранные (%lld)"
+          }
+        }
+      }
+    },
+    "Opened links and errors will appear here." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Здесь появятся открытые ссылки и ошибки."
+          }
+        }
+      }
+    },
+    "Opened: %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыто: %@"
+          }
+        }
+      }
+    },
+    "Opening…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открываю…"
+          }
+        }
+      }
+    },
+    "Pair" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Создать пару"
+          }
+        }
+      }
+    },
+    "Paired device" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сопряжённое устройство"
+          }
+        }
+      }
+    },
+    "Pairing code" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Код сопряжения"
+          }
+        }
+      }
+    },
+    "Production" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Продакшен"
+          }
+        }
+      }
+    },
+    "Install Extension" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Установить расширение"
+          }
+        }
+      }
+    },
+    "Open in Raycast" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть в Raycast"
+          }
+        }
+      }
+    },
+    "Raycast" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raycast"
+          }
+        }
+      }
+    },
+    "Raycast Extension" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Расширение Raycast"
+          }
+        }
+      }
+    },
+    "Raycast Installed" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raycast установлен"
+          }
+        }
+      }
+    },
+    "Raycast Not Found" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raycast не найден"
+          }
+        }
+      }
+    },
+    "Search and open saved deep links without leaving Raycast." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ищите и открывайте сохранённые диплинки, не выходя из Raycast."
+          }
+        }
+      }
+    },
+    "Status" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Статус"
+          }
+        }
+      }
+    },
+    "Storage and environments are detected automatically. No CLI path or JSON file selection is required." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хранилище и окружения определяются автоматически. Указывать путь к CLI или выбирать JSON-файл не нужно."
+          }
+        }
+      }
+    },
+    "Guide" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Руководство"
+          }
+        }
+      }
+    },
+    "Groups, Tags, and Environments" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Группы, теги и окружения"
+          }
+        }
+      }
+    },
+    "Use groups for navigation, tags for search, and environments for values that change between builds." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Используйте группы для навигации, теги для поиска, а окружения — для значений, которые отличаются между сборками."
+          }
+        }
+      }
+    },
+    "Groups" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Группы"
+          }
+        }
+      }
+    },
+    "A link can belong to one optional group. Groups appear in the sidebar filter and work best as broad product areas." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Диплинк может входить в одну необязательную группу. Группы появляются в фильтре боковой панели и лучше всего подходят для крупных разделов продукта."
+          }
+        }
+      }
+    },
+    "Examples: Authentication, Catalog, Checkout" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Примеры: Авторизация, Каталог, Оформление заказа"
+          }
+        }
+      }
+    },
+    "Tags" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Теги"
+          }
+        }
+      }
+    },
+    "A link can have multiple comma-separated tags. Tags are included in search and work best for platforms, test suites, or temporary labels." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У диплинка может быть несколько тегов, разделённых запятыми. Теги участвуют в поиске и подходят для платформ, наборов тестов и временных меток."
+          }
+        }
+      }
+    },
+    "Examples: ios, android, smoke, regression" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Примеры: ios, android, smoke, regression"
+          }
+        }
+      }
+    },
+    "Write reusable placeholders in the saved URL, then define a different value for each environment in Settings → Environments." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавьте переиспользуемые плейсхолдеры в сохранённый URL, а затем задайте отдельные значения для каждого окружения в Настройки → Окружения."
+          }
+        }
+      }
+    },
+    "Saved Template" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранённый шаблон"
+          }
+        }
+      }
+    },
+    "Selecting an environment does not change the saved template. Substitution only affects the resolved preview, Open action, and QR code." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбор окружения не изменяет сохранённый шаблон. Подстановка влияет только на итоговый URL, действие «Открыть» и QR-код."
+          }
+        }
+      }
+    },
+    "A placeholder without a value remains in the URL, so define every required variable before opening the link." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Плейсхолдер без значения остаётся в URL, поэтому перед открытием ссылки задайте все обязательные переменные."
+          }
+        }
+      }
+    },
+    "Use one group for the sidebar filter and comma-separated tags for search." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Используйте одну группу для фильтра боковой панели и теги через запятую для поиска."
+          }
+        }
+      }
+    },
+    "The selected environment replaces {{KEY}} and ${KEY} only for the resolved preview, Open action, and QR code. The saved template stays unchanged." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбранное окружение заменяет {{KEY}} и ${KEY} только в итоговом URL, действии «Открыть» и QR-коде. Сохранённый шаблон остаётся без изменений."
+          }
+        }
+      }
+    },
+    "Refresh" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновить"
+          }
+        }
+      }
+    },
+    "Remove from Favorites" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Убрать из избранного"
+          }
+        }
+      }
+    },
+    "Resolved URL" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Итоговый URL"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранить"
+          }
+        }
+      }
+    },
+    "Save Changes" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранить изменения"
+          }
+        }
+      }
+    },
+    "Save frequently used links and open them in the active iOS Simulator with xcrun simctl openurl." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохраняйте часто используемые ссылки и открывайте их в активном iOS Simulator через xcrun simctl openurl."
+          }
+        }
+      }
+    },
+    "Save, organize, and open deep links on iOS and Android targets." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохраняйте, организуйте и открывайте диплинки на устройствах iOS и Android."
+          }
+        }
+      }
+    },
+    "Search" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поиск"
+          }
+        }
+      }
+    },
+    "Section" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Раздел"
+          }
+        }
+      }
+    },
+    "Shared File" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Общий файл"
+          }
+        }
+      }
+    },
+    "Shared Storage" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Общее хранилище"
+          }
+        }
+      }
+    },
+    "Shared storage file created." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Общий файл хранилища создан."
+          }
+        }
+      }
+    },
+    "Show in Finder" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показать в Finder"
+          }
+        }
+      }
+    },
+    "Show QR Code" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показать QR-код"
+          }
+        }
+      }
+    },
+    "Simulator" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Симулятор"
+          }
+        }
+      }
+    },
+    "Simulator UDID" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UDID симулятора"
+          }
+        }
+      }
+    },
+    "Storage" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хранилище"
+          }
+        }
+      }
+    },
+    "Storage path copied." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Путь к хранилищу скопирован."
+          }
+        }
+      }
+    },
+    "Tags, comma separated" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Теги через запятую"
+          }
+        }
+      }
+    },
+    "Target" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Устройство"
+          }
+        }
+      }
+    },
+    "The clipboard does not contain a URL." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В буфере обмена нет URL."
+          }
+        }
+      }
+    },
+    "The latest 200 launch attempts are stored locally." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последние 200 попыток запуска хранятся локально."
+          }
+        }
+      }
+    },
+    "URL, for example {{BASE_URL}}/product/123" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL, например {{BASE_URL}}/product/123"
+          }
+        }
+      }
+    },
+    "USB" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "USB"
+          }
+        }
+      }
+    },
+    "Use {{KEY}} or ${KEY} in a deep link, then define values for development, staging, or production." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Используйте {{KEY}} или ${KEY} в диплинке, затем задайте значения для разработки, тестирования или продакшена."
+          }
+        }
+      }
+    },
+    "Use Default File" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Использовать файл по умолчанию"
+          }
+        }
+      }
+    },
+    "Use File" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Использовать файл"
+          }
+        }
+      }
+    },
+    "Uses the currently booted simulator" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Использует текущий запущенный симулятор"
+          }
+        }
+      }
+    },
+    "Wireless ADB" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Беспроводной ADB"
+          }
+        }
+      }
+    },
+    "BASE_URL is not built in. It is an example variable name that you create yourself for each environment." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BASE_URL не встроена в приложение. Это пример имени переменной, которую вы самостоятельно создаёте для каждого окружения."
+          }
+        }
+      }
+    },
+    "Configure Environments…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настроить окружения…"
+          }
+        }
+      }
+    },
+    "Configure…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настроить…"
+          }
+        }
+      }
+    },
+    "Development: BASE_URL=https://dev.example.com" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Development: BASE_URL=https://dev.example.com"
+          }
+        }
+      }
+    },
+    "Environment variables are optional" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переменные окружения необязательны"
+          }
+        }
+      }
+    },
+    "Get Started" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начать работу"
+          }
+        }
+      }
+    },
+    "Getting Started" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начало работы"
+          }
+        }
+      }
+    },
+    "Install the extension to search and open the same saved links directly from Raycast." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Установите расширение, чтобы искать и открывать те же сохранённые ссылки прямо из Raycast."
+          }
+        }
+      }
+    },
+    "Open Full Guide" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть полный гайд"
+          }
+        }
+      }
+    },
+    "Raycast integration is optional" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Интеграция с Raycast необязательна"
+          }
+        }
+      }
+    },
+    "Save a link once, then open it on a simulator, device, or from Raycast." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохраните ссылку один раз, затем открывайте её на симуляторе, устройстве или из Raycast."
+          }
+        }
+      }
+    },
+    "Saved link: {{BASE_URL}}/product/42" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранённая ссылка: {{BASE_URL}}/product/42"
+          }
+        }
+      }
+    },
+    "Set Up Raycast…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настроить Raycast…"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки"
+          }
+        }
+      }
+    },
+    "URL or template, for example {{BASE_URL}}/product/123" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL или шаблон, например {{BASE_URL}}/product/123"
+          }
+        }
+      }
+    },
+    "Variable names are yours to define. For example, add BASE_URL=https://dev.example.com below, then use {{BASE_URL}} in a saved link." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Имена переменных задаёте вы. Например, добавьте ниже BASE_URL=https://dev.example.com, а затем используйте {{BASE_URL}} в сохранённой ссылке."
+          }
+        }
+      }
+    },
+    "Variables are defined by you in Settings → Environments. For example, define BASE_URL=https://dev.example.com before using {{BASE_URL}}. Resolution only affects Preview, Open, and QR; the saved template stays unchanged." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переменные задаются в Настройки → Окружения. Например, укажите BASE_URL=https://dev.example.com перед использованием {{BASE_URL}}. Подстановка влияет только на предпросмотр, открытие и QR-код; сохранённый шаблон не меняется."
+          }
+        }
+      }
+    },
+    "Welcome to SimulatorDeepLinker" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добро пожаловать в SimulatorDeepLinker"
+          }
+        }
+      }
+    },
+    "xcrun exited with code %d. %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "xcrun завершился с кодом %d. %@"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -7,21 +7,25 @@
 
 import Foundation
 
-struct CommandResult {
+struct CommandResult: Sendable {
     let statusCode: Int32
     let stdout: String
     let stderr: String
 }
 
-enum CommandRunner {
-    static func run(executablePath: String, arguments: [String]) async throws -> CommandResult {
+protocol CommandRunning: Sendable {
+    func run(executableURL: URL, arguments: [String]) async throws -> CommandResult
+}
+
+struct ProcessCommandRunner: CommandRunning {
+    func run(executableURL: URL, arguments: [String]) async throws -> CommandResult {
         try await withCheckedThrowingContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
                 let process = Process()
                 let outputPipe = Pipe()
                 let errorPipe = Pipe()
 
-                process.executableURL = URL(fileURLWithPath: executablePath)
+                process.executableURL = executableURL
                 process.arguments = arguments
                 process.standardOutput = outputPipe
                 process.standardError = errorPipe
@@ -34,23 +38,11 @@ enum CommandRunner {
                     let stderr = String(data: errorData, encoding: .utf8) ?? ""
                     let statusCode = process.terminationStatus
 
-                    if statusCode == 0 {
-                        continuation.resume(returning: CommandResult(
-                            statusCode: statusCode,
-                            stdout: stdout,
-                            stderr: stderr
-                        ))
-                    } else {
-                        let message = [stderr, stdout]
-                            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                            .filter { $0.isEmpty == false }
-                            .joined(separator: "\n")
-
-                        continuation.resume(throwing: SimulatorOpenError.commandFailed(
-                            statusCode: statusCode,
-                            message: message.isEmpty ? "Проверь, что Xcode установлен и симулятор запущен." : message
-                        ))
-                    }
+                    continuation.resume(returning: CommandResult(
+                        statusCode: statusCode,
+                        stdout: stdout,
+                        stderr: stderr
+                    ))
                 }
 
                 do {
@@ -62,5 +54,3 @@ enum CommandRunner {
         }
     }
 }
-
-
