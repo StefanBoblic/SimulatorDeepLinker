@@ -1,256 +1,1098 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "Choose Deep Link Storage" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Выбор файла хранилища" } }
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ exited with code %d. %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ exited with code %2$d. %3$@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ завершился с кодом %d. %@"
+          }
+        }
       }
     },
-    "Choose an existing SimulatorDeepLinker JSON file. Its links will replace the current list without changing the previous file." : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Выберите существующий JSON-файл SimulatorDeepLinker. Ссылки из него заменят текущий список, а предыдущий файл останется без изменений." } }
+    "%@ was not found. Check the developer tools installation.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ не найден. Проверьте установку инструментов разработчика."
+          }
+        }
       }
     },
-    "Choose Existing File…" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Выбрать существующий файл…" } }
+    "%@ • %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ • %2$@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ • %@"
+          }
+        }
       }
     },
-    "Copy Path" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Скопировать путь" } }
+    "Add Environment": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить окружение"
+          }
+        }
       }
     },
-    "Could not change the storage file: %@" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Не удалось изменить файл хранилища: %@" } }
+    "Add from Clipboard": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить из буфера обмена"
+          }
+        }
       }
     },
-    "Create" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Создать" } }
+    "Add to Favorites": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить в избранное"
+          }
+        }
       }
     },
-    "Create a copy of the current links and use it as the new storage file. The previous file remains unchanged." : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Создайте копию текущих ссылок и используйте её как новый файл хранилища. Предыдущий файл останется без изменений." } }
+    "All Groups": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Все группы"
+          }
+        }
       }
     },
-    "Create Shared Copy…" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Создать общую копию…" } }
+    "Android": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Android"
+          }
+        }
       }
     },
-    "Create Shared Storage" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Создание общего хранилища" } }
+    "Android Emulator": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Эмулятор Android"
+          }
+        }
       }
     },
-    "Custom file" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Пользовательский файл" } }
+    "Android package (optional)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пакет Android (необязательно)"
+          }
+        }
       }
     },
-    "Default file" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Файл по умолчанию" } }
+    "Booted iOS Simulator": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запущенный iOS Simulator"
+          }
+        }
       }
     },
-    "Default storage file selected. The custom file remains unchanged." : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Выбран файл хранилища по умолчанию. Пользовательский файл остался без изменений." } }
+    "Booted simulator": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запущенный симулятор"
+          }
+        }
       }
     },
-    "Existing storage file selected." : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Выбран существующий файл хранилища." } }
+    "Booted simulator is enough for the usual workflow: start the iPhone Simulator you need, then click Open.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Для обычного сценария достаточно запущенного симулятора: сначала запустите нужный iPhone Simulator, затем нажмите «Открыть»."
+          }
+        }
       }
     },
-    "External Apps" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Сторонние приложения" } }
+    "Changes saved": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменения сохранены"
+          }
+        }
       }
     },
-    "External tools can read and write this JSON file. Changes are reloaded automatically while SimulatorDeepLinker is running." : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Сторонние инструменты могут читать и изменять этот JSON-файл. SimulatorDeepLinker автоматически загружает внешние изменения во время работы." } }
+    "Check that Xcode is installed and a simulator is running.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Убедитесь, что Xcode установлен и симулятор запущен."
+          }
+        }
       }
     },
-    "Location" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Расположение" } }
+    "Choose Deep Link Storage": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выбор файла хранилища"
+          }
+        }
       }
     },
-    "Shared storage file created." : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Общий файл хранилища создан." } }
+    "Choose Existing File…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выбрать существующий файл…"
+          }
+        }
       }
     },
-    "Shared Storage" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Общее хранилище" } }
+    "Choose an existing SimulatorDeepLinker JSON file. Its links will replace the current list without changing the previous file.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выберите существующий JSON-файл SimulatorDeepLinker. Ссылки из него заменят текущий список, а предыдущий файл останется без изменений."
+          }
+        }
       }
     },
-    "Show in Finder" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Показать в Finder" } }
+    "Clear History": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистить историю"
+          }
+        }
       }
     },
-    "Storage path copied." : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Путь к хранилищу скопирован." } }
+    "Connect": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подключить"
+          }
+        }
       }
     },
-    "Use Default File" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Использовать файл по умолчанию" } }
+    "Connect Android over Wi-Fi": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подключить Android по Wi-Fi"
+          }
+        }
       }
     },
-    "Use File" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Использовать файл" } }
+    "Copy Path": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скопировать путь"
+          }
+        }
       }
     },
-    "Booted simulator" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Запущенный симулятор" } }
+    "Could not change the storage file: %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось изменить файл хранилища: %@"
+          }
+        }
       }
     },
-    "Booted simulator is enough for the usual workflow: start the iPhone Simulator you need, then click Open." : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Для обычного сценария достаточно запущенного симулятора: сначала запустите нужный iPhone Simulator, затем нажмите «Открыть»." } }
+    "Create": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создать"
+          }
+        }
       }
     },
-    "Changes saved" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Изменения сохранены" } }
+    "Create Shared Copy…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создать общую копию…"
+          }
+        }
       }
     },
-    "Check that Xcode is installed and a simulator is running." : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Убедитесь, что Xcode установлен и симулятор запущен." } }
+    "Create Shared Storage": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создание общего хранилища"
+          }
+        }
       }
     },
-    "Custom UDID" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Другой UDID" } }
+    "Create a copy of the current links and use it as the new storage file. The previous file remains unchanged.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создайте копию текущих ссылок и используйте её как новый файл хранилища. Предыдущий файл останется без изменений."
+          }
+        }
       }
     },
-    "Deep link deleted" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Диплинк удалён" } }
+    "Custom UDID": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Другой UDID"
+          }
+        }
       }
     },
-    "Deep link saved" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Диплинк сохранён" } }
+    "Custom file": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пользовательский файл"
+          }
+        }
       }
     },
-    "Delete" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Удалить" } }
+    "Deep Links": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Диплинки"
+          }
+        }
       }
     },
-    "Edit Deep Link" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Редактирование диплинка" } }
+    "Deep link deleted": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Диплинк удалён"
+          }
+        }
       }
     },
-    "Enter a simulator UDID or choose Booted simulator." : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Укажите UDID симулятора или выберите запущенный симулятор." } }
+    "Deep link saved": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Диплинк сохранён"
+          }
+        }
       }
     },
-    "For example: https://example.com/product/123 or myapp://product/123" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Например: https://example.com/product/123 или myapp://product/123" } }
+    "Default file": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файл по умолчанию"
+          }
+        }
       }
     },
-    "For example: Product details" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Например: Карточка товара" } }
+    "Default storage file selected. The custom file remains unchanged.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выбран файл хранилища по умолчанию. Пользовательский файл остался без изменений."
+          }
+        }
       }
     },
-    "Invalid URL. Check the scheme, for example https://, myapp://, or magnit://." : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Некорректный URL. Проверьте схему, например https://, myapp:// или magnit://." } }
+    "Delete": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить"
+          }
+        }
       }
     },
-    "Name" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Название" } }
+    "Delete Selected": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить выбранные"
+          }
+        }
       }
     },
-    "New" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Новый" } }
+    "Device": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Устройство"
+          }
+        }
       }
     },
-    "New Deep Link" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Новый диплинк" } }
+    "Edit Deep Link": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Редактирование диплинка"
+          }
+        }
       }
     },
-    "Open" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Открыть" } }
+    "Enter a simulator UDID or choose Booted simulator.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Укажите UDID симулятора или выберите запущенный симулятор."
+          }
+        }
       }
     },
-    "Open in Simulator" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Открыть в симуляторе" } }
+    "Enter the installed app's bundle identifier to open a link on a physical Apple device.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Введите идентификатор установленного приложения, чтобы открыть ссылку на физическом устройстве Apple."
+          }
+        }
       }
     },
-    "Opened: %@" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Открыто: %@" } }
+    "Environment": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Окружение"
+          }
+        }
       }
     },
-    "Opening…" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Открываю…" } }
+    "Environment name": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Название окружения"
+          }
+        }
       }
     },
-    "Save" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Сохранить" } }
+    "Environments": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Окружения"
+          }
+        }
       }
     },
-    "Save Changes" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Сохранить изменения" } }
+    "Existing storage file selected.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выбран существующий файл хранилища."
+          }
+        }
       }
     },
-    "Save frequently used links and open them in the active iOS Simulator with xcrun simctl openurl." : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Сохраняйте часто используемые ссылки и открывайте их в активном iOS Simulator через xcrun simctl openurl." } }
+    "Export…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Экспорт…"
+          }
+        }
       }
     },
-    "Search" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Поиск" } }
+    "External Apps": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сторонние приложения"
+          }
+        }
       }
     },
-    "Simulator" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Симулятор" } }
+    "External tools can read and write this JSON file. Changes are reloaded automatically while SimulatorDeepLinker is running.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сторонние инструменты могут читать и изменять этот JSON-файл. SimulatorDeepLinker автоматически загружает внешние изменения во время работы."
+          }
+        }
       }
     },
-    "Simulator UDID" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "UDID симулятора" } }
+    "Favorite": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Избранное"
+          }
+        }
       }
     },
-    "Target" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Устройство" } }
+    "For example: Product details": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Например: Карточка товара"
+          }
+        }
       }
     },
-    "xcrun exited with code %d. %@" : {
-      "localizations" : {
-        "ru" : { "stringUnit" : { "state" : "translated", "value" : "xcrun завершился с кодом %d. %@" } }
+    "For example: https://example.com/product/123 or myapp://product/123": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Например: https://example.com/product/123 или myapp://product/123"
+          }
+        }
+      }
+    },
+    "Group": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Группа"
+          }
+        }
+      }
+    },
+    "IP address and port": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP-адрес и порт"
+          }
+        }
+      }
+    },
+    "Imported %d links.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Импортировано ссылок: %d."
+          }
+        }
+      }
+    },
+    "Import…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Импорт…"
+          }
+        }
+      }
+    },
+    "Installed app bundle identifier": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Идентификатор установленного приложения"
+          }
+        }
+      }
+    },
+    "Invalid URL. Add a scheme such as https:// or myapp://.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Некорректный URL. Добавьте схему, например https:// или myapp://."
+          }
+        }
+      }
+    },
+    "Invalid URL. Check the scheme, for example https://, myapp://, or magnit://.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Некорректный URL. Проверьте схему, например https://, myapp:// или magnit://."
+          }
+        }
+      }
+    },
+    "Launch History": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "История запусков"
+          }
+        }
+      }
+    },
+    "Links exported.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ссылки экспортированы."
+          }
+        }
+      }
+    },
+    "Location": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Расположение"
+          }
+        }
+      }
+    },
+    "Name": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Название"
+          }
+        }
+      }
+    },
+    "New": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новый"
+          }
+        }
+      }
+    },
+    "New Deep Link": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новый диплинк"
+          }
+        }
+      }
+    },
+    "New Environment": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новое окружение"
+          }
+        }
+      }
+    },
+    "No Launches Yet": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запусков пока нет"
+          }
+        }
+      }
+    },
+    "No command output was returned.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Команда не вернула результат."
+          }
+        }
+      }
+    },
+    "None": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нет"
+          }
+        }
+      }
+    },
+    "Open": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть"
+          }
+        }
+      }
+    },
+    "Open Selected (%lld)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть выбранные (%lld)"
+          }
+        }
+      }
+    },
+    "Open in Simulator": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть в симуляторе"
+          }
+        }
+      }
+    },
+    "Open on a Device": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть на устройстве"
+          }
+        }
+      }
+    },
+    "Opened links and errors will appear here.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Здесь появятся открытые ссылки и ошибки."
+          }
+        }
+      }
+    },
+    "Opened: %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыто: %@"
+          }
+        }
+      }
+    },
+    "Opening…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открываю…"
+          }
+        }
+      }
+    },
+    "Pair": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создать пару"
+          }
+        }
+      }
+    },
+    "Paired device": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сопряжённое устройство"
+          }
+        }
+      }
+    },
+    "Pairing code": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Код сопряжения"
+          }
+        }
+      }
+    },
+    "Refresh": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обновить"
+          }
+        }
+      }
+    },
+    "Remove from Favorites": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Убрать из избранного"
+          }
+        }
+      }
+    },
+    "Resolved URL": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Итоговый URL"
+          }
+        }
+      }
+    },
+    "Save": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранить"
+          }
+        }
+      }
+    },
+    "Save Changes": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранить изменения"
+          }
+        }
+      }
+    },
+    "Save frequently used links and open them in the active iOS Simulator with xcrun simctl openurl.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохраняйте часто используемые ссылки и открывайте их в активном iOS Simulator через xcrun simctl openurl."
+          }
+        }
+      }
+    },
+    "Save, organize, and open deep links on iOS and Android targets.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохраняйте, организуйте и открывайте диплинки на устройствах iOS и Android."
+          }
+        }
+      }
+    },
+    "Search": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поиск"
+          }
+        }
+      }
+    },
+    "Section": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Раздел"
+          }
+        }
+      }
+    },
+    "Shared Storage": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Общее хранилище"
+          }
+        }
+      }
+    },
+    "Shared storage file created.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Общий файл хранилища создан."
+          }
+        }
+      }
+    },
+    "Show QR Code": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показать QR-код"
+          }
+        }
+      }
+    },
+    "Show in Finder": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показать в Finder"
+          }
+        }
+      }
+    },
+    "Simulator": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Симулятор"
+          }
+        }
+      }
+    },
+    "Simulator UDID": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UDID симулятора"
+          }
+        }
+      }
+    },
+    "Storage": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Хранилище"
+          }
+        }
+      }
+    },
+    "Storage path copied.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Путь к хранилищу скопирован."
+          }
+        }
+      }
+    },
+    "Tags, comma separated": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Теги через запятую"
+          }
+        }
+      }
+    },
+    "Target": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Устройство"
+          }
+        }
+      }
+    },
+    "The clipboard does not contain a URL.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В буфере обмена нет URL."
+          }
+        }
+      }
+    },
+    "The latest 200 launch attempts are stored locally.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Последние 200 попыток запуска хранятся локально."
+          }
+        }
+      }
+    },
+    "URL, for example {{BASE_URL}}/product/123": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL, например {{BASE_URL}}/product/123"
+          }
+        }
+      }
+    },
+    "USB": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "USB"
+          }
+        }
+      }
+    },
+    "Use Default File": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Использовать файл по умолчанию"
+          }
+        }
+      }
+    },
+    "Use File": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Использовать файл"
+          }
+        }
+      }
+    },
+    "Use {{KEY}} or ${KEY} in a deep link, then define values for development, staging, or production.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Используйте {{KEY}} или ${KEY} в диплинке, затем задайте значения для разработки, тестирования или продакшена."
+          }
+        }
+      }
+    },
+    "Uses the currently booted simulator": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Использует текущий запущенный симулятор"
+          }
+        }
+      }
+    },
+    "Wireless ADB": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Беспроводной ADB"
+          }
+        }
+      }
+    },
+    "iOS Simulator": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS Simulator"
+          }
+        }
+      }
+    },
+    "iPhone or iPad": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone или iPad"
+          }
+        }
+      }
+    },
+    "xcrun exited with code %d. %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "xcrun завершился с кодом %d. %@"
+          }
+        }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

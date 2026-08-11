@@ -20,29 +20,47 @@ final class DeepLinkStore: ObservableObject {
     private let fileMonitor = StorageFileMonitor()
     private var externalReloadTask: Task<Void, Never>?
 
-    init(fileStorage: DeepLinkFileStorage = JSONDeepLinkFileStorage()) {
-        self.fileStorage = fileStorage
+    init(fileStorage: DeepLinkFileStorage? = nil) {
+        self.fileStorage = fileStorage ?? JSONDeepLinkFileStorage()
         load(clearItemsOnFailure: true)
     }
 
-    func add(title: String, urlString: String) {
+    @discardableResult
+    func add(
+        title: String,
+        urlString: String,
+        group: String = "",
+        tags: [String] = [],
+        isFavorite: Bool = false
+    ) -> DeepLinkItem? {
         let normalizedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let normalizedURLString = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
 
         guard normalizedURLString.isEmpty == false else {
-            return
+            return nil
         }
 
         let deepLinkItem = DeepLinkItem(
             title: normalizedTitle.isEmpty ? normalizedURLString : normalizedTitle,
-            urlString: normalizedURLString
+            urlString: normalizedURLString,
+            group: group.trimmingCharacters(in: .whitespacesAndNewlines),
+            tags: normalized(tags),
+            isFavorite: isFavorite
         )
 
         items.insert(deepLinkItem, at: 0)
         save()
+        return deepLinkItem
     }
 
-    func update(item: DeepLinkItem, title: String, urlString: String) {
+    func update(
+        item: DeepLinkItem,
+        title: String,
+        urlString: String,
+        group: String = "",
+        tags: [String] = [],
+        isFavorite: Bool = false
+    ) {
         guard let itemIndex = items.firstIndex(where: { $0.id == item.id }) else {
             return
         }
@@ -56,6 +74,9 @@ final class DeepLinkStore: ObservableObject {
 
         items[itemIndex].title = normalizedTitle.isEmpty ? normalizedURLString : normalizedTitle
         items[itemIndex].urlString = normalizedURLString
+        items[itemIndex].group = group.trimmingCharacters(in: .whitespacesAndNewlines)
+        items[itemIndex].tags = normalized(tags)
+        items[itemIndex].isFavorite = isFavorite
         items[itemIndex].updatedAt = Date()
 
         save()
@@ -66,6 +87,18 @@ final class DeepLinkStore: ObservableObject {
         save()
     }
 
+    func toggleFavorite(_ item: DeepLinkItem) {
+        guard let index = items.firstIndex(where: { $0.id == item.id }) else { return }
+        items[index].isFavorite.toggle()
+        items[index].updatedAt = Date()
+        save()
+    }
+
+    func delete(ids: Set<DeepLinkItem.ID>) {
+        items.removeAll { ids.contains($0.id) }
+        save()
+    }
+
     func move(from source: IndexSet, to destination: Int) {
         items.move(fromOffsets: source, toOffset: destination)
         save()
@@ -73,6 +106,19 @@ final class DeepLinkStore: ObservableObject {
 
     func reload() {
         load()
+    }
+
+    func importDeepLinks(from fileURL: URL) throws -> Int {
+        let importedItems = try fileStorage.loadDeepLinks(from: fileURL)
+        var itemsByID = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
+        importedItems.forEach { itemsByID[$0.id] = $0 }
+        items = itemsByID.values.sorted { $0.updatedAt > $1.updatedAt }
+        save()
+        return importedItems.count
+    }
+
+    func exportDeepLinks(to fileURL: URL) throws {
+        try fileStorage.saveDeepLinks(items, to: fileURL.standardizedFileURL)
     }
 
     func useExistingStorageFile(at fileURL: URL) throws {
@@ -148,6 +194,17 @@ final class DeepLinkStore: ObservableObject {
             try? await Task.sleep(for: .milliseconds(300))
             guard Task.isCancelled == false else { return }
             self?.load()
+        }
+    }
+
+    private func normalized(_ tags: [String]) -> [String] {
+        var seen = Set<String>()
+        return tags.compactMap { tag in
+            let value = tag.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard value.isEmpty == false else { return nil }
+            let key = value.lowercased()
+            guard seen.insert(key).inserted else { return nil }
+            return value
         }
     }
 }
