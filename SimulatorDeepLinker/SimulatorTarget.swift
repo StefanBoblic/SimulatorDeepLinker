@@ -5,6 +5,8 @@
 //  Created by Stefan Boblic on 22.05.2026.
 //
 
+import Foundation
+
 enum SimulatorTarget: String, CaseIterable, Identifiable {
     case booted = "booted"
     case custom = "custom"
@@ -14,9 +16,9 @@ enum SimulatorTarget: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .booted:
-            return "Booted simulator"
+            return String(localized: "Booted simulator")
         case .custom:
-            return "Custom UDID"
+            return String(localized: "Custom UDID")
         }
     }
 }

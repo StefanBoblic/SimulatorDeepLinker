@@ -48,7 +48,9 @@ enum CommandRunner {
 
                         continuation.resume(throwing: SimulatorOpenError.commandFailed(
                             statusCode: statusCode,
-                            message: message.isEmpty ? "Проверь, что Xcode установлен и симулятор запущен." : message
+                            message: message.isEmpty
+                                ? String(localized: "Check that Xcode is installed and a simulator is running.")
+                                : message
                         ))
                     }
                 }
@@ -62,5 +64,4 @@ enum CommandRunner {
         }
     }
 }
-
 

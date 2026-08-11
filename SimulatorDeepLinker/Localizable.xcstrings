@@ -1,0 +1,146 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Booted simulator" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Запущенный симулятор" } }
+      }
+    },
+    "Booted simulator is enough for the usual workflow: start the iPhone Simulator you need, then click Open." : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Для обычного сценария достаточно запущенного симулятора: сначала запустите нужный iPhone Simulator, затем нажмите «Открыть»." } }
+      }
+    },
+    "Changes saved" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Изменения сохранены" } }
+      }
+    },
+    "Check that Xcode is installed and a simulator is running." : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Убедитесь, что Xcode установлен и симулятор запущен." } }
+      }
+    },
+    "Custom UDID" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Другой UDID" } }
+      }
+    },
+    "Deep link deleted" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Диплинк удалён" } }
+      }
+    },
+    "Deep link saved" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Диплинк сохранён" } }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Удалить" } }
+      }
+    },
+    "Edit Deep Link" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Редактирование диплинка" } }
+      }
+    },
+    "Enter a simulator UDID or choose Booted simulator." : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Укажите UDID симулятора или выберите запущенный симулятор." } }
+      }
+    },
+    "For example: https://example.com/product/123 or myapp://product/123" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Например: https://example.com/product/123 или myapp://product/123" } }
+      }
+    },
+    "For example: Product details" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Например: Карточка товара" } }
+      }
+    },
+    "Invalid URL. Check the scheme, for example https://, myapp://, or magnit://." : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Некорректный URL. Проверьте схему, например https://, myapp:// или magnit://." } }
+      }
+    },
+    "Name" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Название" } }
+      }
+    },
+    "New" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Новый" } }
+      }
+    },
+    "New Deep Link" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Новый диплинк" } }
+      }
+    },
+    "Open" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Открыть" } }
+      }
+    },
+    "Open in Simulator" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Открыть в симуляторе" } }
+      }
+    },
+    "Opened: %@" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Открыто: %@" } }
+      }
+    },
+    "Opening…" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Открываю…" } }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Сохранить" } }
+      }
+    },
+    "Save Changes" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Сохранить изменения" } }
+      }
+    },
+    "Save frequently used links and open them in the active iOS Simulator with xcrun simctl openurl." : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Сохраняйте часто используемые ссылки и открывайте их в активном iOS Simulator через xcrun simctl openurl." } }
+      }
+    },
+    "Search" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Поиск" } }
+      }
+    },
+    "Simulator" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Симулятор" } }
+      }
+    },
+    "Simulator UDID" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "UDID симулятора" } }
+      }
+    },
+    "Target" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Устройство" } }
+      }
+    },
+    "xcrun exited with code %d. %@" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "xcrun завершился с кодом %d. %@" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -47,7 +47,7 @@ struct ContentView: View {
 
     private var sidebar: some View {
         VStack(spacing: 12) {
-            TextField("Поиск", text: $searchText)
+            TextField("Search", text: $searchText)
                 .textFieldStyle(.roundedBorder)
                 .padding(.horizontal, 12)
                 .padding(.top, 12)
@@ -57,13 +57,13 @@ struct ContentView: View {
                     DeepLinkRow(item: item)
                         .tag(item.id)
                         .contextMenu {
-                            Button("Открыть в симуляторе") {
+                            Button("Open in Simulator") {
                                 Task { await open(item: item) }
                             }
 
                             Divider()
 
-                            Button("Удалить", role: .destructive) {
+                            Button("Delete", role: .destructive) {
                                 delete(item)
                             }
                         }
@@ -80,7 +80,7 @@ struct ContentView: View {
                 Button {
                     clearEditor()
                 } label: {
-                    Label("Новый", systemImage: "plus")
+                    Label("New", systemImage: "plus")
                 }
             }
         }
@@ -108,45 +108,45 @@ struct ContentView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(selectedItem == nil ? "Новый диплинк" : "Редактирование диплинка")
+            Text(selectedItem == nil ? String(localized: "New Deep Link") : String(localized: "Edit Deep Link"))
                 .font(.largeTitle)
                 .fontWeight(.semibold)
 
-            Text("Сохраняй частые ссылки и открывай их в активном iOS Simulator через xcrun simctl openurl.")
+            Text("Save frequently used links and open them in the active iOS Simulator with xcrun simctl openurl.")
                 .foregroundStyle(.secondary)
         }
     }
 
     private var editor: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Название")
+            Text("Name")
                 .font(.headline)
 
-            TextField("Например: Карточка товара", text: $titleText)
+            TextField("For example: Product details", text: $titleText)
                 .textFieldStyle(.roundedBorder)
 
             Text("URL")
                 .font(.headline)
 
-            TextField("Например: https://example.com/product/123 или myapp://product/123", text: $urlText)
+            TextField("For example: https://example.com/product/123 or myapp://product/123", text: $urlText)
                 .textFieldStyle(.roundedBorder)
                 .font(.system(.body, design: .monospaced))
 
             HStack(spacing: 12) {
-                Button(selectedItem == nil ? "Сохранить" : "Сохранить изменения") {
+                Button(selectedItem == nil ? String(localized: "Save") : String(localized: "Save Changes")) {
                     saveEditor()
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(urlText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
-                Button("Открыть") {
+                Button("Open") {
                     Task { await openCurrentEditorURL() }
                 }
                 .keyboardShortcut(.return, modifiers: [.command])
                 .disabled(isOpening || urlText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
                 if selectedItem != nil {
-                    Button("Удалить", role: .destructive) {
+                    Button("Delete", role: .destructive) {
                         if let selectedItem {
                             delete(selectedItem)
                         }
@@ -158,7 +158,7 @@ struct ContentView: View {
 
     private var simulatorSettings: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Симулятор")
+            Text("Simulator")
                 .font(.headline)
 
             Picker("Target", selection: $simulatorTarget) {
@@ -170,12 +170,12 @@ struct ContentView: View {
             .frame(maxWidth: 360)
 
             if simulatorTarget == .custom {
-                TextField("UDID симулятора", text: $customUDID)
+                TextField("Simulator UDID", text: $customUDID)
                     .textFieldStyle(.roundedBorder)
                     .font(.system(.body, design: .monospaced))
             }
 
-            Text("Для обычного сценария достаточно Booted simulator: сначала запусти нужный iPhone Simulator, потом нажми Открыть.")
+            Text("Booted simulator is enough for the usual workflow: start the iPhone Simulator you need, then click Open.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
@@ -201,11 +201,11 @@ struct ContentView: View {
     private func saveEditor() {
         if let selectedItem {
             store.update(item: selectedItem, title: titleText, urlString: urlText)
-            status = StatusMessage(kind: .success, text: "Изменения сохранены")
+            status = StatusMessage(kind: .success, text: String(localized: "Changes saved"))
         } else {
             store.add(title: titleText, urlString: urlText)
             selectedItemID = store.items.first?.id
-            status = StatusMessage(kind: .success, text: "Диплинк сохранён")
+            status = StatusMessage(kind: .success, text: String(localized: "Deep link saved"))
         }
     }
 
@@ -235,7 +235,7 @@ struct ContentView: View {
 
     private func open(item: DeepLinkItem) async {
         isOpening = true
-        status = StatusMessage(kind: .success, text: "Открываю…")
+        status = StatusMessage(kind: .success, text: String(localized: "Opening…"))
 
         do {
             let result = try await SimulatorOpenService.open(
@@ -251,7 +251,9 @@ struct ContentView: View {
 
             status = StatusMessage(
                 kind: .success,
-                text: commandOutput.isEmpty ? "Открыл: \(item.urlString)" : commandOutput
+                text: commandOutput.isEmpty
+                    ? String(format: String(localized: "Opened: %@"), item.urlString)
+                    : commandOutput
             )
         } catch {
             status = StatusMessage(kind: .error, text: error.localizedDescription)
@@ -267,7 +269,7 @@ struct ContentView: View {
             clearEditor()
         }
 
-        status = StatusMessage(kind: .success, text: "Диплинк удалён")
+        status = StatusMessage(kind: .success, text: String(localized: "Deep link deleted"))
     }
 
     private func deleteItems(at indexSet: IndexSet) {

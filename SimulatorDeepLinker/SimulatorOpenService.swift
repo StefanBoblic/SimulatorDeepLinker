@@ -20,11 +20,15 @@ enum SimulatorOpenError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidURL:
-            return "Некорректный URL. Проверь схему, например https://, myapp:// или magnit://."
+            return String(localized: "Invalid URL. Check the scheme, for example https://, myapp://, or magnit://.")
         case .emptyCustomUDID:
-            return "Укажи UDID симулятора или выбери Booted simulator."
+            return String(localized: "Enter a simulator UDID or choose Booted simulator.")
         case let .commandFailed(statusCode, message):
-            return "xcrun завершился с кодом \(statusCode). \(message)"
+            return String(
+                format: String(localized: "xcrun exited with code %d. %@"),
+                statusCode,
+                message
+            )
         }
     }
 }

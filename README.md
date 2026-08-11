@@ -11,6 +11,7 @@ A small native macOS app for saving deep links and opening them in an iOS Simula
 - Save, search, edit, reorder, and delete deep links
 - Open universal links, web URLs, and custom URL schemes
 - Target the currently booted simulator or a simulator by UDID
+- Use the interface in English or Russian
 - Keep everything locally in a JSON file — no accounts or tracking
 
 ## Install
