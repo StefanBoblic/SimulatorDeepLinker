@@ -30,6 +30,9 @@ playground.xcworkspace
 # .swiftpm
 
 .build/
+/build/
+/homebrew-tap/
+.DS_Store
 
 # CocoaPods
 #
