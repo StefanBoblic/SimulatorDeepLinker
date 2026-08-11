@@ -1,14 +1,15 @@
 # SimulatorDeepLinker for Raycast
 
-Search saved deep links, switch environments, copy resolved URLs, and open links on the target configured in Raycast.
+Search saved deep links, switch environments, copy resolved URLs, and open links on iOS or Android targets.
+
+The extension automatically reads the active SimulatorDeepLinker storage and opens links directly with `xcrun` or `adb`. A separate CLI installation and manual JSON selection are not required.
 
 ## Setup
 
-1. Build the CLI with `cd CLI && swift build -c release`.
-2. In `RaycastExtension`, run `npm install` and `npm run dev`.
-3. Select your `deeplinks.json` and the built `simulator-deep-linker` executable when Raycast asks for preferences.
-4. Set the default platform and target. Use `booted` for the active iOS Simulator.
+1. Open SimulatorDeepLinker once so it can publish its integration settings.
+2. Run `./scripts/install_raycast_extension.sh` from the repository root.
+3. Search for **Search Deep Links** in Raycast.
 
-The extension reads `environments.json` next to `deeplinks.json`, so Development, Production, and custom environments stay synchronized with the macOS app.
+The default target is the booted iOS Simulator. Platform, target, bundle identifier, Android package, and an optional storage override remain available in Raycast preferences.
 
-Before publishing or linting for the Raycast Store, replace `YOUR_RAYCAST_USERNAME` in `package.json` with your Raycast handle.
+For Store validation, run `npm run build`. For publication, run `npm run publish` and authenticate with the Raycast account matching the `author` field in `package.json`.

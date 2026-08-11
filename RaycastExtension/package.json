@@ -4,7 +4,7 @@
   "title": "SimulatorDeepLinker",
   "description": "Search and open saved deep links on iOS and Android developer devices.",
   "icon": "icon.png",
-  "author": "YOUR_RAYCAST_USERNAME",
+  "author": "shtefan_boblik",
   "platforms": [
     "macOS"
   ],
@@ -24,17 +24,10 @@
   "preferences": [
     {
       "name": "storageFile",
-      "title": "Deep Link Storage",
-      "description": "Select the deeplinks.json file shown in SimulatorDeepLinker Settings.",
+      "title": "Storage Override",
+      "description": "Optional deeplinks.json override. The SimulatorDeepLinker storage is detected automatically.",
       "type": "file",
-      "required": true
-    },
-    {
-      "name": "cliPath",
-      "title": "CLI Executable",
-      "description": "Select the simulator-deep-linker executable built from the CLI folder.",
-      "type": "file",
-      "required": true
+      "required": false
     },
     {
       "name": "defaultEnvironment",
@@ -104,6 +97,7 @@
     "build": "ray build -e dist",
     "dev": "ray develop",
     "lint": "ray lint",
-    "fix-lint": "ray lint --fix"
+    "fix-lint": "ray lint --fix",
+    "publish": "npx @raycast/api@latest publish"
   }
 }

@@ -24,6 +24,12 @@ struct LinkEnvironment: Codable {
     let isBuiltIn: Bool?
 }
 
+struct IntegrationManifest: Codable {
+    let schemaVersion: Int
+    let storagePath: String
+    let environmentsPath: String
+}
+
 enum Platform: String {
     case ios
     case iOSDevice = "ios-device"
@@ -167,13 +173,21 @@ struct SimulatorDeepLinkerCLI {
            environmentPath.isEmpty == false {
             return URL(fileURLWithPath: NSString(string: environmentPath).expandingTildeInPath).standardizedFileURL
         }
+        let applicationSupportURL = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Application Support/com.stefan.SimulatorDeepLinker")
+        let manifestURL = applicationSupportURL.appendingPathComponent("integration.json")
+        if let data = try? Data(contentsOf: manifestURL),
+           let manifest = try? JSONDecoder().decode(IntegrationManifest.self, from: data),
+           manifest.schemaVersion == 1,
+           manifest.storagePath.isEmpty == false {
+            return URL(fileURLWithPath: manifest.storagePath).standardizedFileURL
+        }
         if let appDefaults = UserDefaults(suiteName: "com.stefan.SimulatorDeepLinker"),
            let customPath = appDefaults.string(forKey: "customDeepLinkStoragePath"),
            customPath.isEmpty == false {
             return URL(fileURLWithPath: customPath).standardizedFileURL
         }
-        return FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Application Support/com.stefan.SimulatorDeepLinker/deeplinks.json")
+        return applicationSupportURL.appendingPathComponent("deeplinks.json")
     }
 
     private static func loadLinks(from fileURL: URL) throws -> [DeepLink] {

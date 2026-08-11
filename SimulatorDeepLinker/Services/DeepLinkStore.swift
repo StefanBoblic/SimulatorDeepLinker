@@ -17,11 +17,16 @@ final class DeepLinkStore: ObservableObject {
     @Published private(set) var storageError: String?
 
     private let fileStorage: DeepLinkFileStorage
+    private let integrationManifestWriter: any IntegrationManifestWriting
     private let fileMonitor = StorageFileMonitor()
     private var externalReloadTask: Task<Void, Never>?
 
-    init(fileStorage: DeepLinkFileStorage? = nil) {
+    init(
+        fileStorage: DeepLinkFileStorage? = nil,
+        integrationManifestWriter: (any IntegrationManifestWriting)? = nil
+    ) {
         self.fileStorage = fileStorage ?? JSONDeepLinkFileStorage()
+        self.integrationManifestWriter = integrationManifestWriter ?? IntegrationManifestWriter()
         load(clearItemsOnFailure: true)
     }
 
@@ -177,6 +182,7 @@ final class DeepLinkStore: ObservableObject {
         storagePath = fileURL.path
         usesCustomStorageFile = fileStorage.usesCustomStorageFile
         storageError = nil
+        try? integrationManifestWriter.write(storageFileURL: fileURL)
         monitorStorageFile(at: fileURL)
     }
 

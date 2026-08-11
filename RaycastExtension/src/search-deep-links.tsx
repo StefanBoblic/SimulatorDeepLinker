@@ -1,6 +1,18 @@
-import { Action, ActionPanel, Color, Icon, Keyboard, List, Toast, getPreferenceValues, showToast } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  Color,
+  Icon,
+  Keyboard,
+  List,
+  Toast,
+  getPreferenceValues,
+  openExtensionPreferences,
+  showToast,
+} from "@raycast/api";
 import { execFile } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { useEffect, useMemo, useState } from "react";
@@ -8,13 +20,23 @@ import { useEffect, useMemo, useState } from "react";
 const executeFile = promisify(execFile);
 
 type Preferences = {
-  storageFile: string;
-  cliPath: string;
+  storageFile?: string;
   defaultEnvironment?: string;
   platform: "ios" | "ios-device" | "android";
   target: string;
   bundleIdentifier?: string;
   androidPackage?: string;
+};
+
+type IntegrationManifest = {
+  schemaVersion: number;
+  storagePath: string;
+  environmentsPath: string;
+};
+
+type StorageConfiguration = {
+  storagePath: string;
+  environmentsPath: string;
 };
 
 type DeepLink = {
@@ -45,24 +67,27 @@ export default function SearchDeepLinks() {
   const [selectedEnvironment, setSelectedEnvironment] = useState(preferences.defaultEnvironment || "Development");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>();
+  const [storageConfiguration, setStorageConfiguration] = useState<StorageConfiguration>();
 
   async function load() {
     setIsLoading(true);
     setError(undefined);
     try {
-      const linkData = await readFile(preferences.storageFile, "utf8");
+      const configuration = await resolveStorageConfiguration(preferences.storageFile);
+      const linkData = await readFile(configuration.storagePath, "utf8");
       const decodedLinks = JSON.parse(linkData) as DeepLink[];
-      const environmentPath = path.join(path.dirname(preferences.storageFile), "environments.json");
-      const decodedEnvironments = await readFile(environmentPath, "utf8")
+      const decodedEnvironments = await readFile(configuration.environmentsPath, "utf8")
         .then((value) => JSON.parse(value) as LinkEnvironment[])
         .catch(() => builtInEnvironments);
 
+      setStorageConfiguration(configuration);
       setLinks(decodedLinks);
       setEnvironments(decodedEnvironments);
       if (!decodedEnvironments.some((environment) => environment.name === selectedEnvironment)) {
         setSelectedEnvironment(decodedEnvironments[0]?.name ?? "Development");
       }
     } catch (loadError) {
+      setStorageConfiguration(undefined);
       setError(loadError instanceof Error ? loadError.message : String(loadError));
     } finally {
       setIsLoading(false);
@@ -81,26 +106,16 @@ export default function SearchDeepLinks() {
   async function openLink(link: DeepLink) {
     const toast = await showToast({ style: Toast.Style.Animated, title: `Opening ${link.title}` });
     try {
-      await executeFile(preferences.cliPath, cliArguments("open", link.id));
+      const resolvedURL = resolve(link.urlString, selectedEnvironment, environments);
+      await openURL(resolvedURL, preferences);
       toast.style = Toast.Style.Success;
       toast.title = "Deep Link Opened";
-      toast.message = resolve(link.urlString, selectedEnvironment, environments);
+      toast.message = resolvedURL;
     } catch (openError) {
       toast.style = Toast.Style.Failure;
       toast.title = "Could Not Open Deep Link";
       toast.message = commandError(openError);
     }
-  }
-
-  function cliArguments(command: "open" | "resolve", linkID: string): string[] {
-    const argumentsList = [command, linkID, "--storage", preferences.storageFile];
-    if (selectedEnvironment) argumentsList.push("--environment", selectedEnvironment);
-    if (command === "open") {
-      argumentsList.push("--platform", preferences.platform, "--target", preferences.target);
-      if (preferences.bundleIdentifier) argumentsList.push("--bundle-id", preferences.bundleIdentifier);
-      if (preferences.androidPackage) argumentsList.push("--package", preferences.androidPackage);
-    }
-    return argumentsList;
   }
 
   return (
@@ -116,7 +131,17 @@ export default function SearchDeepLinks() {
       }
     >
       {error ? (
-        <List.EmptyView icon={Icon.ExclamationMark} title="Could Not Read Storage" description={error} />
+        <List.EmptyView
+          icon={Icon.ExclamationMark}
+          title="Could Not Read Storage"
+          description={error}
+          actions={
+            <ActionPanel>
+              <Action title="Retry" icon={Icon.ArrowClockwise} onAction={load} />
+              <Action title="Open Extension Preferences" icon={Icon.Gear} onAction={openExtensionPreferences} />
+            </ActionPanel>
+          }
+        />
       ) : (
         sortedLinks.map((link) => {
           const resolvedURL = resolve(link.urlString, selectedEnvironment, environments);
@@ -146,7 +171,7 @@ export default function SearchDeepLinks() {
                     onAction={load}
                     shortcut={Keyboard.Shortcut.Common.Refresh}
                   />
-                  <Action.ShowInFinder path={preferences.storageFile} />
+                  {storageConfiguration ? <Action.ShowInFinder path={storageConfiguration.storagePath} /> : null}
                 </ActionPanel>
               }
             />
@@ -155,6 +180,114 @@ export default function SearchDeepLinks() {
       )}
     </List>
   );
+}
+
+async function resolveStorageConfiguration(storageOverride?: string): Promise<StorageConfiguration> {
+  if (storageOverride) {
+    await access(storageOverride);
+    return {
+      storagePath: storageOverride,
+      environmentsPath: path.join(path.dirname(storageOverride), "environments.json"),
+    };
+  }
+
+  const applicationSupport = path.join(
+    os.homedir(),
+    "Library",
+    "Application Support",
+    "com.stefan.SimulatorDeepLinker",
+  );
+  const manifestPath = path.join(applicationSupport, "integration.json");
+
+  try {
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as IntegrationManifest;
+    if (manifest.schemaVersion !== 1 || !manifest.storagePath) {
+      throw new Error("Unsupported SimulatorDeepLinker integration manifest.");
+    }
+    await access(manifest.storagePath);
+    return {
+      storagePath: manifest.storagePath,
+      environmentsPath: manifest.environmentsPath || path.join(path.dirname(manifest.storagePath), "environments.json"),
+    };
+  } catch (manifestError) {
+    const defaultStoragePath = path.join(applicationSupport, "deeplinks.json");
+    try {
+      await access(defaultStoragePath);
+      return {
+        storagePath: defaultStoragePath,
+        environmentsPath: path.join(applicationSupport, "environments.json"),
+      };
+    } catch {
+      const reason = manifestError instanceof Error ? manifestError.message : String(manifestError);
+      throw new Error(
+        `Open SimulatorDeepLinker once to configure automatic storage, or select a Storage Override. ${reason}`,
+      );
+    }
+  }
+}
+
+async function openURL(urlString: string, preferences: Preferences): Promise<void> {
+  const url = new URL(urlString);
+  if (!url.protocol) throw new Error("The deep link must include a URL scheme.");
+
+  switch (preferences.platform) {
+    case "ios":
+      await executeFile("/usr/bin/xcrun", ["simctl", "openurl", preferences.target || "booted", urlString]);
+      return;
+    case "ios-device":
+      if (!preferences.bundleIdentifier) {
+        throw new Error("Set the Apple Bundle Identifier in extension preferences.");
+      }
+      await executeFile("/usr/bin/xcrun", [
+        "devicectl",
+        "device",
+        "process",
+        "launch",
+        "--device",
+        preferences.target,
+        preferences.bundleIdentifier,
+        "--payload-url",
+        urlString,
+      ]);
+      return;
+    case "android": {
+      const adb = await locateADB();
+      const argumentsList = [
+        "-s",
+        preferences.target,
+        "shell",
+        "am",
+        "start",
+        "-W",
+        "-a",
+        "android.intent.action.VIEW",
+        "-d",
+        urlString,
+      ];
+      if (preferences.androidPackage) argumentsList.push(preferences.androidPackage);
+      await executeFile(adb, argumentsList);
+    }
+  }
+}
+
+async function locateADB(): Promise<string> {
+  const candidates = [
+    process.env.ANDROID_HOME ? path.join(process.env.ANDROID_HOME, "platform-tools", "adb") : undefined,
+    process.env.ANDROID_SDK_ROOT ? path.join(process.env.ANDROID_SDK_ROOT, "platform-tools", "adb") : undefined,
+    path.join(os.homedir(), "Library", "Android", "sdk", "platform-tools", "adb"),
+    "/opt/homebrew/bin/adb",
+    "/usr/local/bin/adb",
+  ].filter((candidate): candidate is string => Boolean(candidate));
+
+  for (const candidate of candidates) {
+    try {
+      await access(candidate);
+      return candidate;
+    } catch {
+      continue;
+    }
+  }
+  throw new Error("ADB was not found. Install Android Platform Tools or configure ANDROID_HOME.");
 }
 
 function resolve(source: string, environmentName: string, environments: LinkEnvironment[]): string {
