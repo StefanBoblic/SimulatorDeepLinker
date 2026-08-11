@@ -33,9 +33,13 @@ private enum AppPage: String, CaseIterable, Identifiable {
 struct ContentView: View {
     @ObservedObject var viewModel: DeepLinksViewModel
     @ObservedObject var historyViewModel: LaunchHistoryViewModel
+    @Environment(\.openSettings) private var openSettings
+    @AppStorage("hasSeenGettingStarted") private var hasSeenGettingStarted = false
+    @AppStorage("selectedSettingsTab") private var selectedSettingsTab = SettingsTab.storage.rawValue
 
     @State private var page: AppPage = .links
     @State private var isShowingQRCode = false
+    @State private var isShowingGettingStarted = false
 
     var body: some View {
         NavigationSplitView {
@@ -50,9 +54,52 @@ struct ContentView: View {
             }
         }
         .task { await viewModel.discoverTargets() }
-        .sheet(isPresented: $isShowingQRCode) {
-            QRCodeView(image: viewModel.qrImage, value: viewModel.resolvedURL)
+        .overlay {
+            if isShowingQRCode {
+                ZStack {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                        .contentShape(Rectangle())
+                        .onTapGesture(perform: dismissQRCode)
+
+                    QRCodeView(
+                        image: viewModel.qrImage,
+                        value: viewModel.resolvedURL,
+                        onClose: dismissQRCode
+                    )
+                    .transition(.scale(scale: 0.96).combined(with: .opacity))
+                }
+                .zIndex(1)
+            }
         }
+        .animation(.easeOut(duration: 0.16), value: isShowingQRCode)
+        .sheet(isPresented: $isShowingGettingStarted) {
+            GettingStartedView(
+                openSettingsTab: openSettings,
+                dismiss: dismissGettingStarted
+            )
+        }
+        .onAppear {
+            if hasSeenGettingStarted == false {
+                isShowingGettingStarted = true
+            }
+        }
+    }
+
+    private func dismissQRCode() {
+        isShowingQRCode = false
+    }
+
+    private func dismissGettingStarted() {
+        hasSeenGettingStarted = true
+        isShowingGettingStarted = false
+    }
+
+    private func openSettings(_ tab: SettingsTab) {
+        hasSeenGettingStarted = true
+        isShowingGettingStarted = false
+        selectedSettingsTab = tab.rawValue
+        openSettings()
     }
 
     private var sidebar: some View {
@@ -94,6 +141,18 @@ struct ContentView: View {
         }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
+                Button {
+                    isShowingGettingStarted = true
+                } label: {
+                    Label("Getting Started", systemImage: "questionmark.circle")
+                }
+
+                Button {
+                    openSettings(.storage)
+                } label: {
+                    Label("Settings", systemImage: "gearshape")
+                }
+
                 Button(action: viewModel.addFromClipboard) {
                     Label("Add from Clipboard", systemImage: "doc.on.clipboard")
                 }
@@ -147,7 +206,7 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 12) {
             TextField("Name", text: $viewModel.titleText)
                 .textFieldStyle(.roundedBorder)
-            TextField("URL, for example {{BASE_URL}}/product/123", text: $viewModel.urlText)
+            TextField("URL or template, for example {{BASE_URL}}/product/123", text: $viewModel.urlText)
                 .textFieldStyle(.roundedBorder)
                 .font(.system(.body, design: .monospaced))
 
@@ -157,6 +216,13 @@ struct ContentView: View {
                 Toggle("Favorite", isOn: $viewModel.isFavorite)
                     .toggleStyle(.checkbox)
             }
+
+            Label(
+                "Use one group for the sidebar filter and comma-separated tags for search.",
+                systemImage: "info.circle"
+            )
+            .font(.caption)
+            .foregroundStyle(.secondary)
 
             HStack {
                 Button(viewModel.selectedItem == nil ? "Save" : "Save Changes", action: viewModel.save)
@@ -215,9 +281,19 @@ struct ContentView: View {
                     .textFieldStyle(.roundedBorder)
             }
 
-            Picker("Environment", selection: $viewModel.selectedEnvironmentID) {
-                ForEach(viewModel.environments) { Text($0.displayName).tag($0.id) }
+            HStack {
+                Picker("Environment", selection: $viewModel.selectedEnvironmentID) {
+                    ForEach(viewModel.environments) { Text($0.displayName).tag($0.id) }
+                }
+
+                Button("Configure…") {
+                    openSettings(.environments)
+                }
             }
+
+            Text("Variables are defined by you in Settings → Environments. For example, define BASE_URL=https://dev.example.com before using {{BASE_URL}}. Resolution only affects Preview, Open, and QR; the saved template stays unchanged.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
 
             if viewModel.resolvedURL != viewModel.urlText {
                 LabeledContent("Resolved URL") {

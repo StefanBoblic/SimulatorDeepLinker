@@ -9,17 +9,36 @@ import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
 
+enum SettingsTab: String {
+    case storage
+    case environments
+    case raycast
+    case guide
+}
+
 struct StorageSettingsView: View {
     @ObservedObject var viewModel: StorageSettingsViewModel
     @ObservedObject var environmentStore: EnvironmentStore
+    @ObservedObject var raycastViewModel: RaycastIntegrationViewModel
+    @AppStorage("selectedSettingsTab") private var selectedTab = SettingsTab.storage.rawValue
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             storageSettings
                 .tabItem { Label("Storage", systemImage: "externaldrive") }
+                .tag(SettingsTab.storage.rawValue)
 
             EnvironmentSettingsView(store: environmentStore)
                 .tabItem { Label("Environments", systemImage: "slider.horizontal.3") }
+                .tag(SettingsTab.environments.rawValue)
+
+            RaycastIntegrationView(viewModel: raycastViewModel)
+                .tabItem { Label("Raycast", systemImage: "command") }
+                .tag(SettingsTab.raycast.rawValue)
+
+            DeepLinkGuideView()
+                .tabItem { Label("Guide", systemImage: "questionmark.circle") }
+                .tag(SettingsTab.guide.rawValue)
         }
         .padding(8)
         .frame(width: 680, height: 440)
@@ -118,6 +137,13 @@ private struct EnvironmentSettingsView: View {
             Text("Environments").font(.title2.weight(.semibold))
             Text("Use {{KEY}} or ${KEY} in a deep link, then define values for development, staging, or production.")
                 .foregroundStyle(.secondary)
+
+            Label(
+                "Variable names are yours to define. For example, add BASE_URL=https://dev.example.com below, then use {{BASE_URL}} in a saved link.",
+                systemImage: "info.circle"
+            )
+            .font(.callout)
+            .foregroundStyle(.secondary)
 
             List {
                 ForEach($store.environments) { $environment in

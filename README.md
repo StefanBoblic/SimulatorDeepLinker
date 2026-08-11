@@ -54,6 +54,8 @@ Development and Production are created automatically. Configure their variables 
 
 Use variables such as `{{BASE_URL}}/product/${PRODUCT_ID}` in saved links. Environments are stored in `environments.json` next to `deeplinks.json`, so the app, CLI, and Raycast extension use the same values.
 
+`BASE_URL` and `PRODUCT_ID` are examples, not built-in values. You choose each variable name and define its value in **Settings → Environments**, for example `BASE_URL=https://dev.example.com` for Development and `BASE_URL=https://example.com` for Production.
+
 ```json
 [
   {
@@ -69,6 +71,26 @@ Use variables such as `{{BASE_URL}}/product/${PRODUCT_ID}` in saved links. Envir
 ```
 
 For wireless Android debugging, pair the device once with its address and pairing code, then connect to its ADB address from the target section.
+
+## Groups, tags, and environment resolution
+
+- **Group** is one optional broad category, such as `Authentication`, `Catalog`, or `Checkout`. Groups become sidebar filters.
+- **Tags** are multiple comma-separated labels, such as `ios, smoke, regression`. Tags are searchable and are useful for platforms, test suites, and temporary labels.
+- **Environment** supplies values for placeholders in a saved URL. Selecting an environment never modifies the saved template; it only changes the resolved preview, the URL sent by **Open**, and the generated QR code.
+
+For example, save this template once:
+
+```text
+{{BASE_URL}}/product/${PRODUCT_ID}
+```
+
+With `BASE_URL=https://dev.example.com` and `PRODUCT_ID=42`, Development resolves it to:
+
+```text
+https://dev.example.com/product/42
+```
+
+Production can resolve the same saved template to `https://example.com/product/42`. Placeholders without configured values remain unchanged, so configure every required variable before opening the link. The same guide is available inside **Settings → Guide**.
 
 ## Shared storage
 
@@ -114,15 +136,13 @@ Use `--storage /path/to/deeplinks.json` or the `SIMULATOR_DEEP_LINKER_STORAGE` e
 
 ## Raycast extension
 
-The extension in `RaycastExtension` provides fast search, environment selection, resolved URL copying, and one-action opening through the CLI.
+The extension in `RaycastExtension` provides fast search, environment selection, resolved URL copying, and one-action opening. It detects the active storage automatically and invokes `xcrun` or `adb` directly, so the CLI and manual file selection are not required.
 
 ```bash
-cd RaycastExtension
-npm install
-npm run dev
+./scripts/install_raycast_extension.sh
 ```
 
-Before running Store validation, replace `YOUR_RAYCAST_USERNAME` in its `package.json` with your Raycast handle. Raycast then asks you to select `deeplinks.json`, the CLI executable, and a default target.
+Open SimulatorDeepLinker once before using the extension. The app writes `integration.json` in its Application Support directory whenever the active storage changes. The extension falls back to the default storage and offers an optional override in Raycast preferences.
 
 ## Development
 
