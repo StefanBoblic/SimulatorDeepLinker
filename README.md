@@ -40,6 +40,26 @@ xcrun simctl openurl <device> <url>
 
 Xcode and at least one iOS Simulator are required.
 
+## Shared storage
+
+Open **Settings → Shared Storage** to choose an existing JSON file, create a shared copy, copy its path, or return to the default location. Changes made by external tools are reloaded automatically.
+
+The file contains a JSON array. Dates use ISO 8601:
+
+```json
+[
+  {
+    "id": "8DB1E10D-20DB-4A4B-95B8-845156B4873A",
+    "title": "Product details",
+    "urlString": "myapp://product/123",
+    "createdAt": "2026-08-11T09:00:00Z",
+    "updatedAt": "2026-08-11T09:00:00Z"
+  }
+]
+```
+
+For a Raycast extension, expose the path as a required preference with `"type": "file"`, then use Node's `fs` APIs to read and atomically replace the JSON file.
+
 ## Development
 
 ```bash

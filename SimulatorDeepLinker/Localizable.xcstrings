@@ -1,6 +1,116 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Choose Deep Link Storage" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Выбор файла хранилища" } }
+      }
+    },
+    "Choose an existing SimulatorDeepLinker JSON file. Its links will replace the current list without changing the previous file." : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Выберите существующий JSON-файл SimulatorDeepLinker. Ссылки из него заменят текущий список, а предыдущий файл останется без изменений." } }
+      }
+    },
+    "Choose Existing File…" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Выбрать существующий файл…" } }
+      }
+    },
+    "Copy Path" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Скопировать путь" } }
+      }
+    },
+    "Could not change the storage file: %@" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Не удалось изменить файл хранилища: %@" } }
+      }
+    },
+    "Create" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Создать" } }
+      }
+    },
+    "Create a copy of the current links and use it as the new storage file. The previous file remains unchanged." : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Создайте копию текущих ссылок и используйте её как новый файл хранилища. Предыдущий файл останется без изменений." } }
+      }
+    },
+    "Create Shared Copy…" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Создать общую копию…" } }
+      }
+    },
+    "Create Shared Storage" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Создание общего хранилища" } }
+      }
+    },
+    "Custom file" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Пользовательский файл" } }
+      }
+    },
+    "Default file" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Файл по умолчанию" } }
+      }
+    },
+    "Default storage file selected. The custom file remains unchanged." : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Выбран файл хранилища по умолчанию. Пользовательский файл остался без изменений." } }
+      }
+    },
+    "Existing storage file selected." : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Выбран существующий файл хранилища." } }
+      }
+    },
+    "External Apps" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Сторонние приложения" } }
+      }
+    },
+    "External tools can read and write this JSON file. Changes are reloaded automatically while SimulatorDeepLinker is running." : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Сторонние инструменты могут читать и изменять этот JSON-файл. SimulatorDeepLinker автоматически загружает внешние изменения во время работы." } }
+      }
+    },
+    "Location" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Расположение" } }
+      }
+    },
+    "Shared storage file created." : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Общий файл хранилища создан." } }
+      }
+    },
+    "Shared Storage" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Общее хранилище" } }
+      }
+    },
+    "Show in Finder" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Показать в Finder" } }
+      }
+    },
+    "Storage path copied." : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Путь к хранилищу скопирован." } }
+      }
+    },
+    "Use Default File" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Использовать файл по умолчанию" } }
+      }
+    },
+    "Use File" : {
+      "localizations" : {
+        "ru" : { "stringUnit" : { "state" : "translated", "value" : "Использовать файл" } }
+      }
+    },
     "Booted simulator" : {
       "localizations" : {
         "ru" : { "stringUnit" : { "state" : "translated", "value" : "Запущенный симулятор" } }

@@ -19,5 +19,10 @@ struct SimulatorDeepLinkerApp: App {
                 .environmentObject(deepLinkStore)
                 .frame(minWidth: 860, minHeight: 560)
         }
+
+        Settings {
+            StorageSettingsView()
+                .environmentObject(deepLinkStore)
+        }
     }
 }
