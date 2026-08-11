@@ -12,6 +12,7 @@ A native macOS app for organizing and testing deep links across iOS and Android 
 - Discover booted iOS Simulators, paired iPhones and iPads, and connected Android devices
 - Open links through `simctl`, `devicectl`, or ADB over USB and Wi-Fi
 - Define environments and substitute `{{KEY}}` or `${KEY}` variables in URLs
+- Use the built-in Development and Production environments or create UAT, QA, Staging, and custom environments
 - Generate a QR code for opening a link on any nearby device
 - Review a local history of successful launches and errors
 - Add a URL directly from the clipboard
@@ -49,7 +50,25 @@ Xcode is required for Apple targets. Android Platform Tools are required for And
 
 ## Environments and Wi-Fi devices
 
-Create environments in **Settings → Environments**, then use variables such as `{{BASE_URL}}/product/123`. For wireless Android debugging, pair the device once with its address and pairing code, then connect to its ADB address from the target section.
+Development and Production are created automatically. Configure their variables in **Settings → Environments**, or add UAT, QA, Staging, and any other environment you need. Built-in environments cannot be deleted, but their variables remain fully editable.
+
+Use variables such as `{{BASE_URL}}/product/${PRODUCT_ID}` in saved links. Environments are stored in `environments.json` next to `deeplinks.json`, so the app, CLI, and Raycast extension use the same values.
+
+```json
+[
+  {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "name": "Development",
+    "variables": {
+      "BASE_URL": "https://dev.example.com",
+      "PRODUCT_ID": "42"
+    },
+    "isBuiltIn": true
+  }
+]
+```
+
+For wireless Android debugging, pair the device once with its address and pairing code, then connect to its ADB address from the target section.
 
 ## Shared storage
 
@@ -72,7 +91,38 @@ The file contains a JSON array. Dates use ISO 8601:
 ]
 ```
 
-For a Raycast extension, expose the path as a required preference with `"type": "file"`, then use Node's `fs` APIs to read and atomically replace the JSON file.
+## CLI
+
+Build the native command-line executable:
+
+```bash
+cd CLI
+swift build -c release
+```
+
+Examples:
+
+```bash
+.build/release/simulator-deep-linker list
+.build/release/simulator-deep-linker environments
+.build/release/simulator-deep-linker resolve Product --environment Development
+.build/release/simulator-deep-linker open Product --environment UAT
+.build/release/simulator-deep-linker open Product --platform android --target emulator-5554
+```
+
+Use `--storage /path/to/deeplinks.json` or the `SIMULATOR_DEEP_LINKER_STORAGE` environment variable when the CLI cannot discover the app's custom storage automatically.
+
+## Raycast extension
+
+The extension in `RaycastExtension` provides fast search, environment selection, resolved URL copying, and one-action opening through the CLI.
+
+```bash
+cd RaycastExtension
+npm install
+npm run dev
+```
+
+Before running Store validation, replace `YOUR_RAYCAST_USERNAME` in its `package.json` with your Raycast handle. Raycast then asks you to select `deeplinks.json`, the CLI executable, and a default target.
 
 ## Development
 

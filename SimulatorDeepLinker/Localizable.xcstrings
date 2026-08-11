@@ -143,6 +143,16 @@
         }
       }
     },
+    "Built In": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Встроенное"
+          }
+        }
+      }
+    },
     "Changes saved": {
       "localizations": {
         "ru": {
@@ -369,6 +379,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Удалить выбранные"
+          }
+        }
+      }
+    },
+    "Development": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разработка"
           }
         }
       }
@@ -783,6 +803,16 @@
         }
       }
     },
+    "Production": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Продакшен"
+          }
+        }
+      }
+    },
     "Refresh": {
       "localizations": {
         "ru": {
@@ -869,6 +899,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Раздел"
+          }
+        }
+      }
+    },
+    "Shared File": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Общий файл"
           }
         }
       }

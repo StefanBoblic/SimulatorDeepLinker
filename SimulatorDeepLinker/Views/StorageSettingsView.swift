@@ -122,6 +122,7 @@ private struct EnvironmentSettingsView: View {
             List {
                 ForEach($store.environments) { $environment in
                     EnvironmentEditorRow(environment: $environment)
+                        .deleteDisabled(environment.isBuiltIn)
                 }
                 .onDelete(perform: store.delete)
             }
@@ -129,6 +130,18 @@ private struct EnvironmentSettingsView: View {
             HStack {
                 Button("Add Environment", systemImage: "plus") { _ = store.add() }
                 Spacer()
+            }
+
+            LabeledContent("Shared File") {
+                Text(store.storagePath)
+                    .font(.system(.caption, design: .monospaced))
+                    .textSelection(.enabled)
+            }
+
+            if let storageError = store.storageError {
+                Label(storageError, systemImage: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.red)
+                    .textSelection(.enabled)
             }
         }
         .padding(18)
@@ -149,8 +162,18 @@ private struct EnvironmentEditorRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            TextField("Environment name", text: $environment.name)
-                .font(.headline)
+            HStack {
+                if environment.isBuiltIn {
+                    Text(environment.displayName)
+                        .font(.headline)
+                    Label("Built In", systemImage: "lock.fill")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else {
+                    TextField("Environment name", text: $environment.name)
+                        .font(.headline)
+                }
+            }
             TextEditor(text: $variablesText)
                 .font(.system(.callout, design: .monospaced))
                 .frame(minHeight: 52)

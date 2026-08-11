@@ -216,7 +216,7 @@ struct ContentView: View {
             }
 
             Picker("Environment", selection: $viewModel.selectedEnvironmentID) {
-                ForEach(viewModel.environments) { Text($0.name).tag($0.id) }
+                ForEach(viewModel.environments) { Text($0.displayName).tag($0.id) }
             }
 
             if viewModel.resolvedURL != viewModel.urlText {

@@ -19,7 +19,7 @@ struct SimulatorDeepLinkerApp: App {
     init() {
         let deepLinkStore = DeepLinkStore()
         let launchHistoryStore = LaunchHistoryStore()
-        let environmentStore = EnvironmentStore()
+        let environmentStore = EnvironmentStore(deepLinkStore: deepLinkStore)
 
         _deepLinksViewModel = StateObject(
             wrappedValue: DeepLinksViewModel(
