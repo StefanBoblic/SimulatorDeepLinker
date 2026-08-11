@@ -13,12 +13,16 @@ import SwiftUI
 final class DeepLinkStore: ObservableObject {
     @Published private(set) var items: [DeepLinkItem] = []
     @Published private(set) var storagePath: String = ""
+    @Published private(set) var usesCustomStorageFile = false
+    @Published private(set) var storageError: String?
 
     private let fileStorage: DeepLinkFileStorage
+    private let fileMonitor = StorageFileMonitor()
+    private var externalReloadTask: Task<Void, Never>?
 
     init(fileStorage: DeepLinkFileStorage = JSONDeepLinkFileStorage()) {
         self.fileStorage = fileStorage
-        load()
+        load(clearItemsOnFailure: true)
     }
 
     func add(title: String, urlString: String) {
@@ -71,13 +75,42 @@ final class DeepLinkStore: ObservableObject {
         load()
     }
 
-    private func load() {
+    func useExistingStorageFile(at fileURL: URL) throws {
+        let standardizedURL = fileURL.standardizedFileURL
+        let loadedItems = try fileStorage.loadDeepLinks(from: standardizedURL)
+
+        fileStorage.setCustomStorageFileURL(standardizedURL)
+        items = loadedItems
+        try updateStorageState()
+    }
+
+    func createSharedStorageFile(at fileURL: URL) throws {
+        let standardizedURL = fileURL.standardizedFileURL
+
+        try fileStorage.saveDeepLinks(items, to: standardizedURL)
+        fileStorage.setCustomStorageFileURL(standardizedURL)
+        try updateStorageState()
+    }
+
+    func useDefaultStorageFile() throws {
+        let defaultURL = try fileStorage.defaultStorageFileURL()
+        let loadedItems = try fileStorage.loadDeepLinks(from: defaultURL)
+
+        fileStorage.setCustomStorageFileURL(nil)
+        items = loadedItems
+        try updateStorageState()
+    }
+
+    private func load(clearItemsOnFailure: Bool = false) {
         do {
             items = try fileStorage.loadDeepLinks()
-            storagePath = try fileStorage.storageFileURL().path
+            try updateStorageState()
             print("Deep links loaded from:", storagePath)
         } catch {
-            items = []
+            if clearItemsOnFailure {
+                items = []
+            }
+            storageError = error.localizedDescription
             print("Deep links load error:", error.localizedDescription)
         }
     }
@@ -85,10 +118,36 @@ final class DeepLinkStore: ObservableObject {
     private func save() {
         do {
             try fileStorage.saveDeepLinks(items)
-            storagePath = try fileStorage.storageFileURL().path
+            try updateStorageState()
             print("Deep links saved to:", storagePath)
         } catch {
+            storageError = error.localizedDescription
             print("Deep links save error:", error.localizedDescription)
+        }
+    }
+
+    private func updateStorageState() throws {
+        let fileURL = try fileStorage.storageFileURL()
+        storagePath = fileURL.path
+        usesCustomStorageFile = fileStorage.usesCustomStorageFile
+        storageError = nil
+        monitorStorageFile(at: fileURL)
+    }
+
+    private func monitorStorageFile(at fileURL: URL) {
+        fileMonitor.start(fileURL: fileURL) { [weak self] in
+            Task { @MainActor [weak self] in
+                self?.scheduleExternalReload()
+            }
+        }
+    }
+
+    private func scheduleExternalReload() {
+        externalReloadTask?.cancel()
+        externalReloadTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(300))
+            guard Task.isCancelled == false else { return }
+            self?.load()
         }
     }
 }
