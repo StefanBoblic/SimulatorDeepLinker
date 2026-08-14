@@ -6,3 +6,4 @@
 - Resolve environment variables before opening a deep link.
 - Open links on iOS Simulators and Android devices through ADB.
 - Use the app's shared storage automatically, or select a custom storage file.
+- Add deep links directly from Raycast with groups, tags, and favorites.
