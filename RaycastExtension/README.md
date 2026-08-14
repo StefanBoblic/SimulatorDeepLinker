@@ -12,6 +12,8 @@ The extension automatically reads the active SimulatorDeepLinker storage and ope
 
 The add form writes directly to the same shared JSON storage as the macOS app. It accepts a title, URL or template, group, comma-separated tags, and a favorite flag. Environment selection remains part of opening a link, so it is not stored on individual links.
 
+To remove one saved link, open its action menu in **Search Deep Links**, choose **Delete Deep Link**, and confirm the destructive action.
+
 The default target is the booted iOS Simulator. Platform, target, bundle identifier, Android package, and an optional storage override remain available in Raycast preferences.
 
 For Store validation, run `npm run build`. For publication, run `npm run publish` and authenticate with the Raycast account matching the `author` field in `package.json`.

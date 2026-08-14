@@ -1,11 +1,13 @@
 import {
   Action,
   ActionPanel,
+  Alert,
   Color,
   Icon,
   Keyboard,
   List,
   Toast,
+  confirmAlert,
   getPreferenceValues,
   openExtensionPreferences,
   showToast,
@@ -16,7 +18,13 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { useEffect, useMemo, useState } from "react";
-import { DeepLink, StorageConfiguration, readDeepLinks, resolveStorageConfiguration } from "./storage.js";
+import {
+  DeepLink,
+  StorageConfiguration,
+  deleteDeepLink,
+  readDeepLinks,
+  resolveStorageConfiguration,
+} from "./storage.js";
 
 const executeFile = promisify(execFile);
 
@@ -89,6 +97,33 @@ export default function SearchDeepLinks() {
     }
   }
 
+  async function deleteLink(link: DeepLink) {
+    if (!storageConfiguration) return;
+    const confirmed = await confirmAlert({
+      title: `Delete “${link.title}”?`,
+      message: "This removes the deep link from the shared SimulatorDeepLinker storage and cannot be undone.",
+      primaryAction: {
+        title: "Delete Deep Link",
+        style: Alert.ActionStyle.Destructive,
+      },
+    });
+    if (!confirmed) return;
+
+    const toast = await showToast({ style: Toast.Style.Animated, title: "Deleting Deep Link" });
+    try {
+      await deleteDeepLink(storageConfiguration, link.id);
+      setLinks((currentLinks) => currentLinks.filter((candidate) => candidate.id !== link.id));
+      toast.style = Toast.Style.Success;
+      toast.title = "Deep Link Deleted";
+      toast.message = link.title;
+    } catch (deleteError) {
+      toast.style = Toast.Style.Failure;
+      toast.title = "Could Not Delete Deep Link";
+      toast.message = deleteError instanceof Error ? deleteError.message : String(deleteError);
+      await load();
+    }
+  }
+
   return (
     <List
       isLoading={isLoading}
@@ -143,6 +178,14 @@ export default function SearchDeepLinks() {
                     shortcut={Keyboard.Shortcut.Common.Refresh}
                   />
                   {storageConfiguration ? <Action.ShowInFinder path={storageConfiguration.storagePath} /> : null}
+                  {storageConfiguration ? (
+                    <Action
+                      title="Delete Deep Link"
+                      icon={Icon.Trash}
+                      style={Action.Style.Destructive}
+                      onAction={() => deleteLink(link)}
+                    />
+                  ) : null}
                 </ActionPanel>
               }
             />

@@ -103,6 +103,15 @@ export async function addDeepLink(configuration: StorageConfiguration, values: N
   return deepLink;
 }
 
+export async function deleteDeepLink(configuration: StorageConfiguration, id: string): Promise<void> {
+  const links = await readDeepLinks(configuration.storagePath);
+  const remainingLinks = links.filter((link) => link.id !== id);
+  if (remainingLinks.length === links.length) {
+    throw new Error("The deep link no longer exists in storage.");
+  }
+  await writeDeepLinksAtomically(configuration.storagePath, remainingLinks);
+}
+
 async function writeDeepLinksAtomically(storagePath: string, links: DeepLink[]): Promise<void> {
   const temporaryPath = path.join(path.dirname(storagePath), `.${path.basename(storagePath)}.${randomUUID()}.tmp`);
   const mode = (await stat(storagePath)).mode & 0o777;
