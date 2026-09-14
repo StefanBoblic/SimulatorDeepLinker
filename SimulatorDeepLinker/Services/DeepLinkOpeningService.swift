@@ -90,17 +90,16 @@ struct DeepLinkOpeningService: DeepLinkOpening {
 
         case .android:
             tool = "adb"
-            var adbArguments = [
-                "-s", target.identifier,
-                "shell", "am", "start", "-W",
+            var remoteArguments = [
+                "am", "start", "-W",
                 "-a", "android.intent.action.VIEW",
                 "-d", url.absoluteString
             ]
             let androidPackage = androidPackage.trimmingCharacters(in: .whitespacesAndNewlines)
             if androidPackage.isEmpty == false {
-                adbArguments.append(androidPackage)
+                remoteArguments.append(contentsOf: ["-p", androidPackage])
             }
-            arguments = adbArguments
+            arguments = ["-s", target.identifier, "shell", shellCommand(remoteArguments)]
         }
 
         guard let executableURL = executables.locate(tool) else {
@@ -122,6 +121,12 @@ struct DeepLinkOpeningService: DeepLinkOpening {
         }
 
         return output
+    }
+
+    private func shellCommand(_ arguments: [String]) -> String {
+        arguments.map { argument in
+            "'" + argument.replacingOccurrences(of: "'", with: "'\\''") + "'"
+        }.joined(separator: " ")
     }
 }
 

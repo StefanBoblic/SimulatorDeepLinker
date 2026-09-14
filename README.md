@@ -96,6 +96,10 @@ Production can resolve the same saved template to `https://example.com/product/4
 
 Open **Settings → Shared Storage** to choose an existing JSON file, create a shared copy, copy its path, or return to the default location. Changes made by external tools are reloaded automatically.
 
+The app creates an empty default `deeplinks.json` on first launch. Older releases create it when the first deep link is saved.
+
+Writers coordinate through an adjacent directory named `<deeplinks.json path>.simulator-deep-linker.lock`. Any external tool that mutates the library must acquire that directory exclusively, read the latest contents, apply its change, atomically replace the JSON file, and then remove the lock. SimulatorDeepLinker and its Raycast extension both follow this protocol so concurrent changes are not lost.
+
 The file contains a JSON array. Dates use ISO 8601:
 
 ```json

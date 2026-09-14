@@ -53,9 +53,14 @@ final class DeepLinkStore: ObservableObject {
             isFavorite: isFavorite
         )
 
-        items.insert(deepLinkItem, at: 0)
-        save()
-        return deepLinkItem
+        do {
+            items = try fileStorage.updateDeepLinks { $0.insert(deepLinkItem, at: 0) }
+            try updateStorageState()
+            return deepLinkItem
+        } catch {
+            handleStorageError(error, operation: "save")
+            return nil
+        }
     }
 
     func update(
@@ -66,10 +71,6 @@ final class DeepLinkStore: ObservableObject {
         tags: [String] = [],
         isFavorite: Bool = false
     ) {
-        guard let itemIndex = items.firstIndex(where: { $0.id == item.id }) else {
-            return
-        }
-
         let normalizedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let normalizedURLString = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -77,36 +78,35 @@ final class DeepLinkStore: ObservableObject {
             return
         }
 
-        items[itemIndex].title = normalizedTitle.isEmpty ? normalizedURLString : normalizedTitle
-        items[itemIndex].urlString = normalizedURLString
-        items[itemIndex].group = group.trimmingCharacters(in: .whitespacesAndNewlines)
-        items[itemIndex].tags = normalized(tags)
-        items[itemIndex].isFavorite = isFavorite
-        items[itemIndex].updatedAt = Date()
-
-        save()
+        mutateItems { items in
+            guard let itemIndex = items.firstIndex(where: { $0.id == item.id }) else { return }
+            items[itemIndex].title = normalizedTitle.isEmpty ? normalizedURLString : normalizedTitle
+            items[itemIndex].urlString = normalizedURLString
+            items[itemIndex].group = group.trimmingCharacters(in: .whitespacesAndNewlines)
+            items[itemIndex].tags = normalized(tags)
+            items[itemIndex].isFavorite = isFavorite
+            items[itemIndex].updatedAt = Date()
+        }
     }
 
     func delete(_ item: DeepLinkItem) {
-        items.removeAll { $0.id == item.id }
-        save()
+        mutateItems { $0.removeAll { $0.id == item.id } }
     }
 
     func toggleFavorite(_ item: DeepLinkItem) {
-        guard let index = items.firstIndex(where: { $0.id == item.id }) else { return }
-        items[index].isFavorite.toggle()
-        items[index].updatedAt = Date()
-        save()
+        mutateItems { items in
+            guard let index = items.firstIndex(where: { $0.id == item.id }) else { return }
+            items[index].isFavorite.toggle()
+            items[index].updatedAt = Date()
+        }
     }
 
     func delete(ids: Set<DeepLinkItem.ID>) {
-        items.removeAll { ids.contains($0.id) }
-        save()
+        mutateItems { $0.removeAll { ids.contains($0.id) } }
     }
 
     func move(from source: IndexSet, to destination: Int) {
-        items.move(fromOffsets: source, toOffset: destination)
-        save()
+        mutateItems { $0.move(fromOffsets: source, toOffset: destination) }
     }
 
     func reload() {
@@ -115,10 +115,12 @@ final class DeepLinkStore: ObservableObject {
 
     func importDeepLinks(from fileURL: URL) throws -> Int {
         let importedItems = try fileStorage.loadDeepLinks(from: fileURL)
-        var itemsByID = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
-        importedItems.forEach { itemsByID[$0.id] = $0 }
-        items = itemsByID.values.sorted { $0.updatedAt > $1.updatedAt }
-        save()
+        items = try fileStorage.updateDeepLinks { storedItems in
+            var itemsByID = Dictionary(uniqueKeysWithValues: storedItems.map { ($0.id, $0) })
+            importedItems.forEach { itemsByID[$0.id] = $0 }
+            storedItems = itemsByID.values.sorted { $0.updatedAt > $1.updatedAt }
+        }
+        try updateStorageState()
         return importedItems.count
     }
 
@@ -154,6 +156,7 @@ final class DeepLinkStore: ObservableObject {
 
     private func load(clearItemsOnFailure: Bool = false) {
         do {
+            try fileStorage.ensureStorageExists()
             items = try fileStorage.loadDeepLinks()
             try updateStorageState()
             print("Deep links loaded from:", storagePath)
@@ -166,15 +169,19 @@ final class DeepLinkStore: ObservableObject {
         }
     }
 
-    private func save() {
+    private func mutateItems(_ update: (inout [DeepLinkItem]) throws -> Void) {
         do {
-            try fileStorage.saveDeepLinks(items)
+            items = try fileStorage.updateDeepLinks(update)
             try updateStorageState()
             print("Deep links saved to:", storagePath)
         } catch {
-            storageError = error.localizedDescription
-            print("Deep links save error:", error.localizedDescription)
+            handleStorageError(error, operation: "save")
         }
+    }
+
+    private func handleStorageError(_ error: Error, operation: String) {
+        storageError = error.localizedDescription
+        print("Deep links \(operation) error:", error.localizedDescription)
     }
 
     private func updateStorageState() throws {

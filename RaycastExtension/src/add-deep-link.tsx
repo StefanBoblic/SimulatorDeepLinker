@@ -1,4 +1,14 @@
-import { Action, ActionPanel, Form, Icon, Toast, getPreferenceValues, popToRoot, showToast } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  Form,
+  Icon,
+  Toast,
+  getPreferenceValues,
+  openExtensionPreferences,
+  popToRoot,
+  showToast,
+} from "@raycast/api";
 import { useEffect, useState } from "react";
 import { StorageConfiguration, addDeepLink, resolveStorageConfiguration } from "./storage.js";
 
@@ -44,7 +54,7 @@ export default function AddDeepLink() {
       await showToast({
         style: Toast.Style.Failure,
         title: "Could Not Access Storage",
-        message: storageError ?? "Open SimulatorDeepLinker once, then try again.",
+        message: storageError ?? "Install and open Simulator Deep Linker once, then try again.",
       });
       return;
     }
@@ -73,19 +83,26 @@ export default function AddDeepLink() {
   return (
     <Form
       isLoading={isLoading}
-      navigationTitle="Add Deep Link"
       actions={
         <ActionPanel>
-          <Action.SubmitForm title="Add Deep Link" icon={Icon.Plus} onSubmit={submit} />
-          {!configuration ? (
-            <Action title="Retry Storage Detection" icon={Icon.ArrowClockwise} onAction={loadConfiguration} />
-          ) : null}
+          {configuration ? (
+            <Action.SubmitForm title="Add Deep Link" icon={Icon.Plus} onSubmit={submit} />
+          ) : (
+            <ActionPanel.Section>
+              <Action title="Retry Storage Detection" icon={Icon.ArrowClockwise} onAction={loadConfiguration} />
+              <Action title="Open Extension Preferences" icon={Icon.Gear} onAction={openExtensionPreferences} />
+              <Action.OpenInBrowser
+                title="Download Simulator Deep Linker"
+                url="https://github.com/StefanBoblic/SimulatorDeepLinker/releases/latest"
+              />
+            </ActionPanel.Section>
+          )}
         </ActionPanel>
       }
     >
       <Form.Description
         title="Storage"
-        text={configuration?.storagePath ?? storageError ?? "Detecting SimulatorDeepLinker storage…"}
+        text={configuration?.storagePath ?? storageError ?? "Detecting Simulator Deep Linker storage…"}
       />
       <Form.TextField id="title" title="Title" placeholder="Open Product Details" />
       <Form.TextField

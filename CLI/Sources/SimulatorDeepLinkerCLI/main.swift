@@ -286,13 +286,24 @@ struct SimulatorDeepLinkerCLI {
             guard let adb = locateADB() else {
                 throw CLIError.executableNotFound("adb was not found. Install Android Platform Tools or set ANDROID_HOME.")
             }
-            var arguments = [
-                "-s", options.target, "shell", "am", "start", "-W",
+            var remoteArguments = [
+                "am", "start", "-W",
                 "-a", "android.intent.action.VIEW", "-d", url.absoluteString
             ]
-            if options.androidPackage.isEmpty == false { arguments.append(options.androidPackage) }
-            try run(executable: adb, arguments: arguments)
+            if options.androidPackage.isEmpty == false {
+                remoteArguments.append(contentsOf: ["-p", options.androidPackage])
+            }
+            try run(
+                executable: adb,
+                arguments: ["-s", options.target, "shell", shellCommand(remoteArguments)]
+            )
         }
+    }
+
+    private static func shellCommand(_ arguments: [String]) -> String {
+        arguments.map { argument in
+            "'" + argument.replacingOccurrences(of: "'", with: "'\\''") + "'"
+        }.joined(separator: " ")
     }
 
     private static func run(executable: String, arguments: [String]) throws {
