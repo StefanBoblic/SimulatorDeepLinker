@@ -5,6 +5,7 @@
 //  Created by Stefan Boblic on 22.05.2026.
 //
 
+import Darwin
 import Foundation
 
 protocol DeepLinkFileStorage {
@@ -23,9 +24,9 @@ protocol DeepLinkFileStorage {
 final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
     private static let customStoragePathKey = "customDeepLinkStoragePath"
     private static let lockSuffix = ".simulator-deep-linker.lock"
+    private static let lockOwnerFileName = "owner"
     private static let lockRetryInterval: TimeInterval = 0.025
     private static let lockTimeout: TimeInterval = 10
-    private static let staleLockAge: TimeInterval = 120
 
     private let fileManager: FileManager
     private let userDefaults: UserDefaults
@@ -110,15 +111,23 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
         try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
 
         let lockURL = URL(fileURLWithPath: canonicalURL.path + Self.lockSuffix)
+        let ownerURL = lockURL.appendingPathComponent(Self.lockOwnerFileName, isDirectory: false)
+        let ownerToken = UUID().uuidString
         let deadline = Date().addingTimeInterval(Self.lockTimeout)
 
         while true {
             do {
                 try fileManager.createDirectory(at: lockURL, withIntermediateDirectories: false)
+                do {
+                    try ownerToken.write(to: ownerURL, atomically: false, encoding: .utf8)
+                } catch {
+                    try? fileManager.removeItem(at: ownerURL)
+                    try? removeEmptyDirectory(at: lockURL)
+                    throw error
+                }
                 break
             } catch {
                 guard fileManager.fileExists(atPath: lockURL.path) else { throw error }
-                try removeStaleLockIfNeeded(at: lockURL)
                 guard Date() < deadline else {
                     throw StorageLockError.timedOut
                 }
@@ -126,30 +135,41 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
             }
         }
 
-        defer { try? fileManager.removeItem(at: lockURL) }
-        return try operation(canonicalURL)
+        do {
+            let result = try operation(canonicalURL)
+            try releaseStorageLock(at: lockURL, ownerURL: ownerURL, ownerToken: ownerToken)
+            return result
+        } catch {
+            let operationError = error
+            try? releaseStorageLock(at: lockURL, ownerURL: ownerURL, ownerToken: ownerToken)
+            throw operationError
+        }
     }
 
-    private func removeStaleLockIfNeeded(at lockURL: URL) throws {
-        let attributes: [FileAttributeKey: Any]
+    private func releaseStorageLock(at lockURL: URL, ownerURL: URL, ownerToken: String) throws {
+        let currentOwner: String
         do {
-            attributes = try fileManager.attributesOfItem(atPath: lockURL.path)
+            currentOwner = try String(contentsOf: ownerURL, encoding: .utf8)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
         } catch {
-            guard fileManager.fileExists(atPath: lockURL.path) else { return }
-            throw error
-        }
-        guard let modifiedAt = attributes[.modificationDate] as? Date,
-              Date().timeIntervalSince(modifiedAt) > Self.staleLockAge else {
-            return
+            throw StorageLockError.couldNotVerifyOwnership(error)
         }
 
-        let staleURL = URL(fileURLWithPath: lockURL.path + ".stale." + UUID().uuidString)
-        do {
-            try fileManager.moveItem(at: lockURL, to: staleURL)
-            try? fileManager.removeItem(at: staleURL)
-        } catch {
-            guard fileManager.fileExists(atPath: lockURL.path) else { return }
-            throw error
+        guard currentOwner == ownerToken else {
+            throw StorageLockError.ownershipChanged
+        }
+
+        try fileManager.removeItem(at: ownerURL)
+        try removeEmptyDirectory(at: lockURL)
+    }
+
+    private func removeEmptyDirectory(at directoryURL: URL) throws {
+        let result: Int32 = directoryURL.withUnsafeFileSystemRepresentation { fileSystemPath in
+            guard let fileSystemPath else { return -1 }
+            return Darwin.rmdir(fileSystemPath)
+        }
+        guard result == 0 else {
+            throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
         }
     }
 
@@ -199,8 +219,17 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
 
 private enum StorageLockError: LocalizedError {
     case timedOut
+    case ownershipChanged
+    case couldNotVerifyOwnership(Error)
 
     var errorDescription: String? {
-        "Timed out waiting for another Simulator Deep Linker writer to finish."
+        switch self {
+        case .timedOut:
+            "Timed out waiting for another Simulator Deep Linker writer to finish. If no writer is running, remove the abandoned storage lock manually."
+        case .ownershipChanged:
+            "Storage lock ownership changed while updating deep links; the replacement lock was left intact."
+        case let .couldNotVerifyOwnership(error):
+            "Could not verify storage lock ownership: \(error.localizedDescription)"
+        }
     }
 }
