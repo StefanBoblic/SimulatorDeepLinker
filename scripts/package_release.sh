@@ -20,7 +20,11 @@ xcodebuild \
   -scheme "${SCHEME}" \
   -configuration Release \
   -archivePath "${ARCHIVE_PATH}" \
+  CODE_SIGNING_ALLOWED=NO \
   archive
+
+codesign --force --deep --sign - "${APP_PATH}"
+codesign --verify --deep --strict "${APP_PATH}"
 
 ditto -c -k --keepParent \
   "${APP_PATH}" \
