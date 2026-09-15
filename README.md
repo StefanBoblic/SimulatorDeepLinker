@@ -98,7 +98,7 @@ Open **Settings → Shared Storage** to choose an existing JSON file, create a s
 
 The app creates an empty default `deeplinks.json` on first launch. Older releases create it when the first deep link is saved.
 
-Writers coordinate through an adjacent directory named `<deeplinks.json path>.simulator-deep-linker.lock`. The writer that creates it stores a unique token in an `owner` file, reads the latest contents, applies its change, atomically replaces the JSON file, and removes the lock only when the token still matches. Existing locks are never reclaimed based only on their age; after a crash, remove an abandoned lock manually only when no Simulator Deep Linker writer is running. SimulatorDeepLinker and its Raycast extension both follow this protocol so concurrent changes are not lost.
+Writers coordinate through an adjacent directory named `<deeplinks.json path>.simulator-deep-linker.lock`. The writer stores its unique token and process ID in an `owner` file, reads the latest contents, applies its change, atomically replaces the JSON file, and removes the lock only when the owner metadata still matches. An abandoned lock is recovered only after the recorded process is confirmed absent; lock age is never used as proof. SimulatorDeepLinker and its Raycast extension both follow this protocol so concurrent changes are not lost.
 
 The file contains a JSON array. Dates use ISO 8601:
 

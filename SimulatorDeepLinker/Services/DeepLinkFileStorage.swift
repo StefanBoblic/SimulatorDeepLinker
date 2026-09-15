@@ -112,14 +112,14 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
 
         let lockURL = URL(fileURLWithPath: canonicalURL.path + Self.lockSuffix)
         let ownerURL = lockURL.appendingPathComponent(Self.lockOwnerFileName, isDirectory: false)
-        let ownerToken = UUID().uuidString
+        let owner = StorageLockOwner(token: UUID().uuidString, pid: getpid())
         let deadline = Date().addingTimeInterval(Self.lockTimeout)
 
         while true {
             do {
                 try fileManager.createDirectory(at: lockURL, withIntermediateDirectories: false)
                 do {
-                    try ownerToken.write(to: ownerURL, atomically: false, encoding: .utf8)
+                    try writeStorageLockOwner(owner, to: ownerURL)
                 } catch {
                     try? fileManager.removeItem(at: ownerURL)
                     try? removeEmptyDirectory(at: lockURL)
@@ -128,6 +128,7 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
                 break
             } catch {
                 guard fileManager.fileExists(atPath: lockURL.path) else { throw error }
+                try recoverAbandonedStorageLock(at: lockURL, ownerURL: ownerURL)
                 guard Date() < deadline else {
                     throw StorageLockError.timedOut
                 }
@@ -137,30 +138,111 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
 
         do {
             let result = try operation(canonicalURL)
-            try releaseStorageLock(at: lockURL, ownerURL: ownerURL, ownerToken: ownerToken)
+            try releaseStorageLock(at: lockURL, ownerURL: ownerURL, owner: owner)
             return result
         } catch {
             let operationError = error
-            try? releaseStorageLock(at: lockURL, ownerURL: ownerURL, ownerToken: ownerToken)
+            try? releaseStorageLock(at: lockURL, ownerURL: ownerURL, owner: owner)
             throw operationError
         }
     }
 
-    private func releaseStorageLock(at lockURL: URL, ownerURL: URL, ownerToken: String) throws {
-        let currentOwner: String
+    private func releaseStorageLock(at lockURL: URL, ownerURL: URL, owner: StorageLockOwner) throws {
+        let releaseURL = lockURL.appendingPathComponent(".release.\(owner.token)")
         do {
-            currentOwner = try String(contentsOf: ownerURL, encoding: .utf8)
-                .trimmingCharacters(in: .whitespacesAndNewlines)
+            try fileManager.moveItem(at: ownerURL, to: releaseURL)
         } catch {
             throw StorageLockError.couldNotVerifyOwnership(error)
         }
 
-        guard currentOwner == ownerToken else {
+        let currentOwner = try? readStorageLockOwner(from: releaseURL)
+        guard currentOwner == owner else {
+            try? restoreStorageLockOwner(from: releaseURL, to: ownerURL)
             throw StorageLockError.ownershipChanged
         }
 
-        try fileManager.removeItem(at: ownerURL)
-        try removeEmptyDirectory(at: lockURL)
+        try removeClaimedStorageLock(at: lockURL, ownerURL: ownerURL, claimURL: releaseURL, owner: owner)
+    }
+
+    private func recoverAbandonedStorageLock(at lockURL: URL, ownerURL: URL) throws {
+        guard let observedOwner = try? readStorageLockOwner(from: ownerURL) else {
+            try recoverOwnerlessStorageLock(at: lockURL, ownerURL: ownerURL)
+            return
+        }
+        guard isProcessAlive(observedOwner.pid) == false else { return }
+
+        let recoveryURL = lockURL.appendingPathComponent(".recovery.\(UUID().uuidString)")
+        do {
+            try fileManager.moveItem(at: ownerURL, to: recoveryURL)
+        } catch {
+            guard fileManager.fileExists(atPath: ownerURL.path) else { return }
+            throw error
+        }
+
+        guard let claimedOwner = try? readStorageLockOwner(from: recoveryURL),
+              claimedOwner == observedOwner,
+              isProcessAlive(claimedOwner.pid) == false else {
+            try? restoreStorageLockOwner(from: recoveryURL, to: ownerURL)
+            return
+        }
+
+        try removeClaimedStorageLock(at: lockURL, ownerURL: ownerURL, claimURL: recoveryURL, owner: claimedOwner)
+    }
+
+    private func recoverOwnerlessStorageLock(at lockURL: URL, ownerURL: URL) throws {
+        let entries: [URL]
+        do {
+            entries = try fileManager.contentsOfDirectory(at: lockURL, includingPropertiesForKeys: nil)
+        } catch {
+            guard fileManager.fileExists(atPath: lockURL.path) else { return }
+            throw error
+        }
+
+        if entries.isEmpty {
+            try? removeEmptyDirectory(at: lockURL)
+            return
+        }
+
+        let transitions = entries.filter {
+            $0.lastPathComponent.hasPrefix(".recovery.") || $0.lastPathComponent.hasPrefix(".release.")
+        }
+        guard transitions.count == 1,
+              let transitionOwner = try? readStorageLockOwner(from: transitions[0]),
+              isProcessAlive(transitionOwner.pid) == false else { return }
+        try? restoreStorageLockOwner(from: transitions[0], to: ownerURL)
+    }
+
+    private func removeClaimedStorageLock(
+        at lockURL: URL,
+        ownerURL: URL,
+        claimURL: URL,
+        owner: StorageLockOwner
+    ) throws {
+        try fileManager.removeItem(at: claimURL)
+        do {
+            try removeEmptyDirectory(at: lockURL)
+        } catch {
+            try? writeStorageLockOwner(owner, to: ownerURL)
+            throw error
+        }
+    }
+
+    private func restoreStorageLockOwner(from claimURL: URL, to ownerURL: URL) throws {
+        guard fileManager.fileExists(atPath: claimURL.path) else { return }
+        try fileManager.moveItem(at: claimURL, to: ownerURL)
+    }
+
+    private func writeStorageLockOwner(_ owner: StorageLockOwner, to ownerURL: URL) throws {
+        try JSONEncoder().encode(owner).write(to: ownerURL)
+    }
+
+    private func readStorageLockOwner(from ownerURL: URL) throws -> StorageLockOwner {
+        try JSONDecoder().decode(StorageLockOwner.self, from: Data(contentsOf: ownerURL))
+    }
+
+    private func isProcessAlive(_ pid: Int32) -> Bool {
+        if Darwin.kill(pid, 0) == 0 { return true }
+        return errno != ESRCH
     }
 
     private func removeEmptyDirectory(at directoryURL: URL) throws {
@@ -214,6 +296,38 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
 
     var usesCustomStorageFile: Bool {
         userDefaults.string(forKey: Self.customStoragePathKey)?.isEmpty == false
+    }
+}
+
+private struct StorageLockOwner: Codable, Equatable {
+    let schemaVersion: Int
+    let token: String
+    let pid: Int32
+
+    init(token: String, pid: Int32) {
+        schemaVersion = 1
+        self.token = token
+        self.pid = pid
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decode(Int.self, forKey: .schemaVersion)
+        token = try container.decode(String.self, forKey: .token)
+        pid = try container.decode(Int32.self, forKey: .pid)
+        guard schemaVersion == 1, token.isEmpty == false, pid > 0 else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .schemaVersion,
+                in: container,
+                debugDescription: "Unsupported storage lock owner metadata."
+            )
+        }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion
+        case token
+        case pid
     }
 }
 
