@@ -25,6 +25,7 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
     private static let customStoragePathKey = "customDeepLinkStoragePath"
     private static let lockSuffix = ".simulator-deep-linker.lock"
     private static let lockOwnerFileName = "owner"
+    private static let recoveryClaimFileName = ".recovery-claim"
     private static let lockRetryInterval: TimeInterval = 0.025
     private static let lockTimeout: TimeInterval = 10
 
@@ -128,7 +129,9 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
             }
 
             do {
-                try fileManager.moveItem(at: candidateURL, to: lockURL)
+                // A symlink publishes the initialized candidate with create-if-absent semantics. Unlike rename, it
+                // cannot replace an existing empty lock while another writer is releasing or recovering it.
+                try fileManager.createSymbolicLink(at: lockURL, withDestinationURL: candidateURL)
                 break
             } catch {
                 try? fileManager.removeItem(at: candidateOwnerURL)
@@ -154,48 +157,64 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
     }
 
     private func releaseStorageLock(at lockURL: URL, ownerURL: URL, owner: StorageLockOwner) throws {
-        let releaseURL = lockURL.appendingPathComponent(".release.\(owner.token)")
+        guard (try? readStorageLockOwner(from: ownerURL)) == owner else {
+            throw StorageLockError.ownershipChanged
+        }
+
+        let releaseURL = URL(fileURLWithPath: lockURL.path + ".release." + owner.token)
         do {
-            try fileManager.moveItem(at: ownerURL, to: releaseURL)
+            try fileManager.moveItem(at: lockURL, to: releaseURL)
         } catch {
             throw StorageLockError.couldNotVerifyOwnership(error)
         }
 
-        let currentOwner = try? readStorageLockOwner(from: releaseURL)
+        let claimedOwnerURL = releaseURL.appendingPathComponent(Self.lockOwnerFileName, isDirectory: false)
+        let currentOwner = try? readStorageLockOwner(from: claimedOwnerURL)
         guard currentOwner == owner else {
-            try? restoreStorageLockOwner(from: releaseURL, to: ownerURL)
             throw StorageLockError.ownershipChanged
         }
 
-        try removeClaimedStorageLock(at: lockURL, ownerURL: ownerURL, claimURL: releaseURL, owner: owner)
+        try removeClaimedStorageLock(at: releaseURL, ownerURL: claimedOwnerURL)
     }
 
     private func recoverAbandonedStorageLock(at lockURL: URL, ownerURL: URL) throws {
         guard let observedOwner = try? readStorageLockOwner(from: ownerURL) else {
-            try recoverOwnerlessStorageLock(at: lockURL, ownerURL: ownerURL)
+            try recoverLegacyTransitionLock(at: lockURL)
             return
         }
         guard isProcessAlive(observedOwner.pid) == false else { return }
 
-        let recoveryURL = lockURL.appendingPathComponent(".recovery.\(UUID().uuidString)")
+        // This generation-local claim serializes recovery and prevents a stale observer from moving a replacement lock.
+        let recoveryClaimURL = lockURL.appendingPathComponent(Self.recoveryClaimFileName, isDirectory: false)
         do {
-            try fileManager.moveItem(at: ownerURL, to: recoveryURL)
-        } catch {
-            guard fileManager.fileExists(atPath: ownerURL.path) else { return }
-            throw error
-        }
-
-        guard let claimedOwner = try? readStorageLockOwner(from: recoveryURL),
-              claimedOwner == observedOwner,
-              isProcessAlive(claimedOwner.pid) == false else {
-            try? restoreStorageLockOwner(from: recoveryURL, to: ownerURL)
+            try writeStorageLockOwner(observedOwner, to: recoveryClaimURL)
+        } catch CocoaError.fileWriteFileExists {
+            return
+        } catch CocoaError.fileNoSuchFile {
             return
         }
 
-        try removeClaimedStorageLock(at: lockURL, ownerURL: ownerURL, claimURL: recoveryURL, owner: claimedOwner)
+        guard (try? readStorageLockOwner(from: ownerURL)) == observedOwner else {
+            try? fileManager.removeItem(at: recoveryClaimURL)
+            return
+        }
+
+        let recoveryURL = URL(fileURLWithPath: lockURL.path + ".recovery." + UUID().uuidString)
+        do {
+            try fileManager.moveItem(at: lockURL, to: recoveryURL)
+        } catch {
+            try? fileManager.removeItem(at: recoveryClaimURL)
+            guard fileManager.fileExists(atPath: lockURL.path) else { return }
+            throw error
+        }
+
+        let claimedOwnerURL = recoveryURL.appendingPathComponent(Self.lockOwnerFileName, isDirectory: false)
+        guard (try? readStorageLockOwner(from: claimedOwnerURL)) == observedOwner else { return }
+
+        try removeClaimedStorageLock(at: recoveryURL, ownerURL: claimedOwnerURL)
     }
 
-    private func recoverOwnerlessStorageLock(at lockURL: URL, ownerURL: URL) throws {
+    private func recoverLegacyTransitionLock(at lockURL: URL) throws {
         let entries: [URL]
         do {
             entries = try fileManager.contentsOfDirectory(at: lockURL, includingPropertiesForKeys: nil)
@@ -204,42 +223,63 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
             throw error
         }
 
-        if entries.isEmpty {
-            try? removeEmptyDirectory(at: lockURL)
-            return
-        }
-
         let transitions = entries.filter {
             $0.lastPathComponent.hasPrefix(".recovery.") || $0.lastPathComponent.hasPrefix(".release.")
         }
         guard transitions.count == 1,
               let transitionOwner = try? readStorageLockOwner(from: transitions[0]),
               isProcessAlive(transitionOwner.pid) == false else { return }
-        try? restoreStorageLockOwner(from: transitions[0], to: ownerURL)
+
+        let recoveryClaimURL = lockURL.appendingPathComponent(Self.recoveryClaimFileName, isDirectory: false)
+        do {
+            try writeStorageLockOwner(transitionOwner, to: recoveryClaimURL)
+        } catch CocoaError.fileWriteFileExists {
+            return
+        } catch CocoaError.fileNoSuchFile {
+            return
+        }
+
+        guard (try? readStorageLockOwner(from: transitions[0])) == transitionOwner else {
+            try? fileManager.removeItem(at: recoveryClaimURL)
+            return
+        }
+
+        let recoveryURL = URL(fileURLWithPath: lockURL.path + ".recovery." + UUID().uuidString)
+        do {
+            try fileManager.moveItem(at: lockURL, to: recoveryURL)
+        } catch {
+            try? fileManager.removeItem(at: recoveryClaimURL)
+            guard fileManager.fileExists(atPath: lockURL.path) else { return }
+            throw error
+        }
+
+        let claimedTransitionURL = recoveryURL.appendingPathComponent(transitions[0].lastPathComponent)
+        guard (try? readStorageLockOwner(from: claimedTransitionURL)) == transitionOwner else { return }
+        try removeClaimedStorageLock(at: recoveryURL, ownerURL: claimedTransitionURL)
     }
 
-    private func removeClaimedStorageLock(
-        at lockURL: URL,
-        ownerURL: URL,
-        claimURL: URL,
-        owner: StorageLockOwner
-    ) throws {
-        try fileManager.removeItem(at: claimURL)
-        do {
+    private func removeClaimedStorageLock(at lockURL: URL, ownerURL: URL) throws {
+        let resourceValues = try lockURL.resourceValues(forKeys: [.isSymbolicLinkKey])
+        let symbolicLinkDestination = resourceValues.isSymbolicLink == true
+            ? try fileManager.destinationOfSymbolicLink(atPath: lockURL.path)
+            : nil
+        try fileManager.removeItem(at: ownerURL)
+        let recoveryClaimURL = lockURL.appendingPathComponent(Self.recoveryClaimFileName, isDirectory: false)
+        if fileManager.fileExists(atPath: recoveryClaimURL.path) {
+            try fileManager.removeItem(at: recoveryClaimURL)
+        }
+        if let symbolicLinkDestination {
+            let destinationURL = URL(fileURLWithPath: symbolicLinkDestination, relativeTo: lockURL.deletingLastPathComponent())
+                .standardizedFileURL
+            try removeEmptyDirectory(at: destinationURL)
+            try fileManager.removeItem(at: lockURL)
+        } else {
             try removeEmptyDirectory(at: lockURL)
-        } catch {
-            try? writeStorageLockOwner(owner, to: ownerURL)
-            throw error
         }
     }
 
-    private func restoreStorageLockOwner(from claimURL: URL, to ownerURL: URL) throws {
-        guard fileManager.fileExists(atPath: claimURL.path) else { return }
-        try fileManager.moveItem(at: claimURL, to: ownerURL)
-    }
-
     private func writeStorageLockOwner(_ owner: StorageLockOwner, to ownerURL: URL) throws {
-        try JSONEncoder().encode(owner).write(to: ownerURL)
+        try JSONEncoder().encode(owner).write(to: ownerURL, options: .withoutOverwriting)
     }
 
     private func readStorageLockOwner(from ownerURL: URL) throws -> StorageLockOwner {
