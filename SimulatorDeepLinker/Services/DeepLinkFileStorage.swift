@@ -113,20 +113,26 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
         let lockURL = URL(fileURLWithPath: canonicalURL.path + Self.lockSuffix)
         let ownerURL = lockURL.appendingPathComponent(Self.lockOwnerFileName, isDirectory: false)
         let owner = StorageLockOwner(token: UUID().uuidString, pid: getpid())
+        let candidateURL = URL(fileURLWithPath: lockURL.path + ".candidate." + owner.token)
+        let candidateOwnerURL = candidateURL.appendingPathComponent(Self.lockOwnerFileName, isDirectory: false)
         let deadline = Date().addingTimeInterval(Self.lockTimeout)
 
         while true {
+            try fileManager.createDirectory(at: candidateURL, withIntermediateDirectories: false)
             do {
-                try fileManager.createDirectory(at: lockURL, withIntermediateDirectories: false)
-                do {
-                    try writeStorageLockOwner(owner, to: ownerURL)
-                } catch {
-                    try? fileManager.removeItem(at: ownerURL)
-                    try? removeEmptyDirectory(at: lockURL)
-                    throw error
-                }
+                try writeStorageLockOwner(owner, to: candidateOwnerURL)
+            } catch {
+                try? fileManager.removeItem(at: candidateOwnerURL)
+                try? removeEmptyDirectory(at: candidateURL)
+                throw error
+            }
+
+            do {
+                try fileManager.moveItem(at: candidateURL, to: lockURL)
                 break
             } catch {
+                try? fileManager.removeItem(at: candidateOwnerURL)
+                try? removeEmptyDirectory(at: candidateURL)
                 guard fileManager.fileExists(atPath: lockURL.path) else { throw error }
                 try recoverAbandonedStorageLock(at: lockURL, ownerURL: ownerURL)
                 guard Date() < deadline else {
