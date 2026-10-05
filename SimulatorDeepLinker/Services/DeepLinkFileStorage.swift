@@ -185,17 +185,10 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
         guard isProcessAlive(observedOwner.pid) == false else { return }
 
         // This generation-local claim serializes recovery and prevents a stale observer from moving a replacement lock.
-        let recoveryClaimURL = lockURL.appendingPathComponent(Self.recoveryClaimFileName, isDirectory: false)
-        do {
-            try writeStorageLockOwner(observedOwner, to: recoveryClaimURL)
-        } catch CocoaError.fileWriteFileExists {
-            return
-        } catch CocoaError.fileNoSuchFile {
-            return
-        }
-
-        guard (try? readStorageLockOwner(from: ownerURL)) == observedOwner else {
-            try? fileManager.removeItem(at: recoveryClaimURL)
+        guard let recoveryLease = try acquireStorageRecoveryClaim(at: lockURL, owner: observedOwner) else { return }
+        guard (try? readStorageLockOwner(from: ownerURL)) == observedOwner,
+              (try? readStorageRecoveryClaim(from: recoveryLease.url)) == recoveryLease.claim else {
+            releaseStorageRecoveryClaim(recoveryLease)
             return
         }
 
@@ -203,7 +196,7 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
         do {
             try fileManager.moveItem(at: lockURL, to: recoveryURL)
         } catch {
-            try? fileManager.removeItem(at: recoveryClaimURL)
+            releaseStorageRecoveryClaim(recoveryLease)
             guard fileManager.fileExists(atPath: lockURL.path) else { return }
             throw error
         }
@@ -223,6 +216,10 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
             throw error
         }
 
+        guard entries.isEmpty == false else {
+            throw StorageLockError.ownerlessLegacyLock
+        }
+
         let transitions = entries.filter {
             $0.lastPathComponent.hasPrefix(".recovery.") || $0.lastPathComponent.hasPrefix(".release.")
         }
@@ -230,17 +227,10 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
               let transitionOwner = try? readStorageLockOwner(from: transitions[0]),
               isProcessAlive(transitionOwner.pid) == false else { return }
 
-        let recoveryClaimURL = lockURL.appendingPathComponent(Self.recoveryClaimFileName, isDirectory: false)
-        do {
-            try writeStorageLockOwner(transitionOwner, to: recoveryClaimURL)
-        } catch CocoaError.fileWriteFileExists {
-            return
-        } catch CocoaError.fileNoSuchFile {
-            return
-        }
-
-        guard (try? readStorageLockOwner(from: transitions[0])) == transitionOwner else {
-            try? fileManager.removeItem(at: recoveryClaimURL)
+        guard let recoveryLease = try acquireStorageRecoveryClaim(at: lockURL, owner: transitionOwner) else { return }
+        guard (try? readStorageLockOwner(from: transitions[0])) == transitionOwner,
+              (try? readStorageRecoveryClaim(from: recoveryLease.url)) == recoveryLease.claim else {
+            releaseStorageRecoveryClaim(recoveryLease)
             return
         }
 
@@ -248,7 +238,7 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
         do {
             try fileManager.moveItem(at: lockURL, to: recoveryURL)
         } catch {
-            try? fileManager.removeItem(at: recoveryClaimURL)
+            releaseStorageRecoveryClaim(recoveryLease)
             guard fileManager.fileExists(atPath: lockURL.path) else { return }
             throw error
         }
@@ -256,6 +246,71 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
         let claimedTransitionURL = recoveryURL.appendingPathComponent(transitions[0].lastPathComponent)
         guard (try? readStorageLockOwner(from: claimedTransitionURL)) == transitionOwner else { return }
         try removeClaimedStorageLock(at: recoveryURL, ownerURL: claimedTransitionURL)
+    }
+
+    private func acquireStorageRecoveryClaim(
+        at lockURL: URL,
+        owner: StorageLockOwner
+    ) throws -> (claim: StorageRecoveryClaim, url: URL, canReleaseSafely: Bool)? {
+        let resourceValues = try? lockURL.resourceValues(forKeys: [.isSymbolicLinkKey])
+        let canReleaseSafely = resourceValues?.isSymbolicLink == true
+        let lockTargetURL = lockURL.resolvingSymlinksInPath()
+        let claimURL = lockTargetURL.appendingPathComponent(Self.recoveryClaimFileName, isDirectory: false)
+        let claim = StorageRecoveryClaim(
+            ownerToken: owner.token,
+            ownerPid: owner.pid,
+            claimantToken: UUID().uuidString,
+            claimantPid: getpid()
+        )
+
+        do {
+            try writeStorageRecoveryClaim(claim, to: claimURL)
+            return (claim, claimURL, canReleaseSafely)
+        } catch CocoaError.fileNoSuchFile {
+            return nil
+        } catch CocoaError.fileWriteFileExists {
+            // The existing claimant is inspected below.
+        }
+
+        guard let abandonedClaim = try? readStorageRecoveryClaim(from: claimURL),
+              abandonedClaim.ownerToken == owner.token,
+              abandonedClaim.ownerPid == owner.pid,
+              isProcessAlive(abandonedClaim.claimantPid) == false else { return nil }
+
+        let takeoverURL = lockTargetURL.appendingPathComponent(
+            "\(Self.recoveryClaimFileName).takeover.\(claim.claimantToken)",
+            isDirectory: false
+        )
+        do {
+            try fileManager.moveItem(at: claimURL, to: takeoverURL)
+        } catch CocoaError.fileNoSuchFile {
+            return nil
+        }
+
+        guard (try? readStorageRecoveryClaim(from: takeoverURL)) == abandonedClaim else { return nil }
+
+        do {
+            try writeStorageRecoveryClaim(claim, to: claimURL)
+        } catch CocoaError.fileNoSuchFile {
+            try? fileManager.removeItem(at: takeoverURL)
+            return nil
+        } catch CocoaError.fileWriteFileExists {
+            try? fileManager.removeItem(at: takeoverURL)
+            return nil
+        } catch {
+            try? fileManager.removeItem(at: takeoverURL)
+            throw error
+        }
+        try? fileManager.removeItem(at: takeoverURL)
+        return (claim, claimURL, canReleaseSafely)
+    }
+
+    private func releaseStorageRecoveryClaim(
+        _ lease: (claim: StorageRecoveryClaim, url: URL, canReleaseSafely: Bool)
+    ) {
+        guard lease.canReleaseSafely,
+              (try? readStorageRecoveryClaim(from: lease.url)) == lease.claim else { return }
+        try? fileManager.removeItem(at: lease.url)
     }
 
     private func removeClaimedStorageLock(at lockURL: URL, ownerURL: URL) throws {
@@ -267,6 +322,10 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
         let recoveryClaimURL = lockURL.appendingPathComponent(Self.recoveryClaimFileName, isDirectory: false)
         if fileManager.fileExists(atPath: recoveryClaimURL.path) {
             try fileManager.removeItem(at: recoveryClaimURL)
+        }
+        for entry in try fileManager.contentsOfDirectory(at: lockURL, includingPropertiesForKeys: nil)
+        where entry.lastPathComponent.hasPrefix("\(Self.recoveryClaimFileName).takeover.") {
+            try fileManager.removeItem(at: entry)
         }
         if let symbolicLinkDestination {
             let destinationURL = URL(fileURLWithPath: symbolicLinkDestination, relativeTo: lockURL.deletingLastPathComponent())
@@ -284,6 +343,14 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
 
     private func readStorageLockOwner(from ownerURL: URL) throws -> StorageLockOwner {
         try JSONDecoder().decode(StorageLockOwner.self, from: Data(contentsOf: ownerURL))
+    }
+
+    private func writeStorageRecoveryClaim(_ claim: StorageRecoveryClaim, to claimURL: URL) throws {
+        try JSONEncoder().encode(claim).write(to: claimURL, options: .withoutOverwriting)
+    }
+
+    private func readStorageRecoveryClaim(from claimURL: URL) throws -> StorageRecoveryClaim {
+        try JSONDecoder().decode(StorageRecoveryClaim.self, from: Data(contentsOf: claimURL))
     }
 
     private func isProcessAlive(_ pid: Int32) -> Bool {
@@ -377,10 +444,55 @@ private struct StorageLockOwner: Codable, Equatable {
     }
 }
 
+private struct StorageRecoveryClaim: Codable, Equatable {
+    let schemaVersion: Int
+    let ownerToken: String
+    let ownerPid: Int32
+    let claimantToken: String
+    let claimantPid: Int32
+
+    init(ownerToken: String, ownerPid: Int32, claimantToken: String, claimantPid: Int32) {
+        schemaVersion = 1
+        self.ownerToken = ownerToken
+        self.ownerPid = ownerPid
+        self.claimantToken = claimantToken
+        self.claimantPid = claimantPid
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decode(Int.self, forKey: .schemaVersion)
+        ownerToken = try container.decode(String.self, forKey: .ownerToken)
+        ownerPid = try container.decode(Int32.self, forKey: .ownerPid)
+        claimantToken = try container.decode(String.self, forKey: .claimantToken)
+        claimantPid = try container.decode(Int32.self, forKey: .claimantPid)
+        guard schemaVersion == 1,
+              ownerToken.isEmpty == false,
+              ownerPid > 0,
+              claimantToken.isEmpty == false,
+              claimantPid > 0 else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .schemaVersion,
+                in: container,
+                debugDescription: "Unsupported storage recovery claim metadata."
+            )
+        }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion
+        case ownerToken
+        case ownerPid
+        case claimantToken
+        case claimantPid
+    }
+}
+
 private enum StorageLockError: LocalizedError {
     case timedOut
     case ownershipChanged
     case couldNotVerifyOwnership(Error)
+    case ownerlessLegacyLock
 
     var errorDescription: String? {
         switch self {
@@ -390,6 +502,8 @@ private enum StorageLockError: LocalizedError {
             "Storage lock ownership changed while updating deep links; the replacement lock was left intact."
         case let .couldNotVerifyOwnership(error):
             "Could not verify storage lock ownership: \(error.localizedDescription)"
+        case .ownerlessLegacyLock:
+            "Simulator Deep Linker found an unfinished storage update from an older version. Quit Simulator Deep Linker and Raycast, remove the .simulator-deep-linker.lock folder next to your storage file, then try again."
         }
     }
 }
