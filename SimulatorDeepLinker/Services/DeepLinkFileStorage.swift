@@ -225,7 +225,11 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
         let transitions = entries.filter {
             $0.lastPathComponent.hasPrefix(".recovery.") || $0.lastPathComponent.hasPrefix(".release.")
         }
+        let unexpectedEntries = entries.filter {
+            transitions.contains($0) == false && isStorageRecoveryArtifactName($0.lastPathComponent) == false
+        }
         guard transitions.count == 1,
+              unexpectedEntries.isEmpty,
               let transitionOwner = try? readStorageLockOwner(from: transitions[0]),
               isProcessAlive(transitionOwner.pid) == false else { return }
 
@@ -403,24 +407,50 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
     }
 
     private func removeClaimedStorageLock(at lockURL: URL, ownerURL: URL) throws {
-        let resourceValues = try lockURL.resourceValues(forKeys: [.isSymbolicLinkKey])
-        let symbolicLinkDestination = resourceValues.isSymbolicLink == true
-            ? try fileManager.destinationOfSymbolicLink(atPath: lockURL.path)
-            : nil
-        try fileManager.removeItem(at: ownerURL)
-        for entry in try fileManager.contentsOfDirectory(at: lockURL, includingPropertiesForKeys: nil)
-        where entry.lastPathComponent == Self.recoveryClaimFileName
-            || entry.lastPathComponent.hasPrefix(Self.recoveryClaimFileName + ".") {
-            try fileManager.removeItem(at: entry)
+        guard let resourceValues = try? lockURL.resourceValues(forKeys: [.isSymbolicLinkKey]) else { return }
+        let isSymbolicLock = resourceValues.isSymbolicLink == true
+        let cleanupURL = isSymbolicLock ? lockURL.resolvingSymlinksInPath() : lockURL
+        let ownerCleanupURL = cleanupURL.appendingPathComponent(ownerURL.lastPathComponent, isDirectory: false)
+        if isSymbolicLock {
+            guard (try? fileManager.removeItem(at: lockURL)) != nil else { return }
         }
-        if let symbolicLinkDestination {
-            let destinationURL = URL(fileURLWithPath: symbolicLinkDestination, relativeTo: lockURL.deletingLastPathComponent())
-                .standardizedFileURL
-            try removeEmptyDirectory(at: destinationURL)
-            try fileManager.removeItem(at: lockURL)
-        } else {
-            try removeEmptyDirectory(at: lockURL)
+
+        // Once the public lock has moved to its unique path (and the symlink is removed above), cleanup cannot affect
+        // mutual exclusion. Races with losing recovery contenders must therefore never report a successful save as
+        // failed. Multiple best-effort passes also collect temp files from an in-flight bakery doorway.
+        try? fileManager.removeItem(at: ownerCleanupURL)
+        for _ in 0 ..< 100 {
+            guard let entries = try? fileManager.contentsOfDirectory(
+                at: cleanupURL,
+                includingPropertiesForKeys: nil
+            ) else { return }
+            for entry in entries where isStorageRecoveryArtifactName(entry.lastPathComponent) {
+                try? fileManager.removeItem(at: entry)
+            }
+            guard let remainingEntries = try? fileManager.contentsOfDirectory(
+                at: cleanupURL,
+                includingPropertiesForKeys: nil
+            ) else { return }
+            if remainingEntries.isEmpty {
+                do {
+                    try removeEmptyDirectory(at: cleanupURL)
+                    return
+                } catch let error as POSIXError where error.code == .ENOTEMPTY {
+                    // A contender published another temp record between the final read and rmdir; retry cleanup.
+                } catch {
+                    return
+                }
+            } else if remainingEntries.contains(where: {
+                isStorageRecoveryArtifactName($0.lastPathComponent) == false
+            }) {
+                return
+            }
+            Thread.sleep(forTimeInterval: 0.001)
         }
+    }
+
+    private func isStorageRecoveryArtifactName(_ name: String) -> Bool {
+        name == Self.recoveryClaimFileName || name.hasPrefix(Self.recoveryClaimFileName + ".")
     }
 
     private func writeStorageLockOwner(_ owner: StorageLockOwner, to ownerURL: URL) throws {
