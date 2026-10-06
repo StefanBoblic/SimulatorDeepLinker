@@ -26,6 +26,8 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
     private static let lockSuffix = ".simulator-deep-linker.lock"
     private static let lockOwnerFileName = "owner"
     private static let recoveryClaimFileName = ".recovery-claim"
+    private static let recoveryClaimPrefix = "\(recoveryClaimFileName).claim."
+    private static let recoveryChoosingPrefix = "\(recoveryClaimFileName).choosing."
     private static let lockRetryInterval: TimeInterval = 0.025
     private static let lockTimeout: TimeInterval = 10
 
@@ -251,66 +253,153 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
     private func acquireStorageRecoveryClaim(
         at lockURL: URL,
         owner: StorageLockOwner
-    ) throws -> (claim: StorageRecoveryClaim, url: URL, canReleaseSafely: Bool)? {
-        let resourceValues = try? lockURL.resourceValues(forKeys: [.isSymbolicLinkKey])
-        let canReleaseSafely = resourceValues?.isSymbolicLink == true
+    ) throws -> (claim: StorageRecoveryClaim, url: URL)? {
         let lockTargetURL = lockURL.resolvingSymlinksInPath()
-        let claimURL = lockTargetURL.appendingPathComponent(Self.recoveryClaimFileName, isDirectory: false)
+        guard try hasLiveOrUnverifiableLegacyRecoveryClaim(at: lockTargetURL, owner: owner) == false else {
+            return nil
+        }
+
+        let claimantToken = UUID().uuidString
+        let choosingURL = lockTargetURL.appendingPathComponent(
+            Self.recoveryChoosingPrefix + claimantToken,
+            isDirectory: false
+        )
+        let claimURL = lockTargetURL.appendingPathComponent(
+            Self.recoveryClaimPrefix + claimantToken,
+            isDirectory: false
+        )
+        let choosingClaim = LegacyStorageRecoveryClaim(
+            ownerToken: owner.token,
+            ownerPid: owner.pid,
+            claimantToken: claimantToken,
+            claimantPid: getpid()
+        )
+        var publishedClaim = false
+        var returningLease = false
+        defer {
+            try? fileManager.removeItem(at: choosingURL)
+            if publishedClaim, returningLease == false {
+                try? fileManager.removeItem(at: claimURL)
+            }
+        }
+
+        // Publishing a choosing record before reading tickets is the Lamport bakery doorway. It prevents an older
+        // contender from entering while this contender can still publish an equal-priority claim ahead of it.
+        try publishRecoveryRecord(choosingClaim, to: choosingURL)
+        let existingClaims = try readRecoveryClaims(at: lockTargetURL, owner: owner)
+        let ticket = existingClaims.map(\.claim.ticket).max().map { $0 + 1 } ?? 1
         let claim = StorageRecoveryClaim(
             ownerToken: owner.token,
             ownerPid: owner.pid,
-            claimantToken: UUID().uuidString,
-            claimantPid: getpid()
+            claimantToken: claimantToken,
+            claimantPid: getpid(),
+            ticket: ticket
         )
+        try publishRecoveryRecord(claim, to: claimURL)
+        publishedClaim = true
+        try fileManager.removeItem(at: choosingURL)
 
-        do {
-            try writeStorageRecoveryClaim(claim, to: claimURL)
-            return (claim, claimURL, canReleaseSafely)
-        } catch CocoaError.fileNoSuchFile {
-            return nil
-        } catch CocoaError.fileWriteFileExists {
-            // The existing claimant is inspected below.
+        let choosingEntries = try readRecoveryChoosingRecords(at: lockTargetURL, owner: owner)
+        guard choosingEntries.contains(where: { isProcessAlive($0.claim.claimantPid) }) == false else { return nil }
+        for entry in choosingEntries where isProcessAlive(entry.claim.claimantPid) == false {
+            try? fileManager.removeItem(at: entry.url)
         }
 
-        guard let abandonedClaim = try? readStorageRecoveryClaim(from: claimURL),
-              abandonedClaim.ownerToken == owner.token,
-              abandonedClaim.ownerPid == owner.pid,
-              isProcessAlive(abandonedClaim.claimantPid) == false else { return nil }
-
-        let takeoverURL = lockTargetURL.appendingPathComponent(
-            "\(Self.recoveryClaimFileName).takeover.\(claim.claimantToken)",
-            isDirectory: false
-        )
-        do {
-            try fileManager.moveItem(at: claimURL, to: takeoverURL)
-        } catch CocoaError.fileNoSuchFile {
-            return nil
+        var liveContenders: [(claim: StorageRecoveryClaim, url: URL)] = []
+        for contender in try readRecoveryClaims(at: lockTargetURL, owner: owner) {
+            if isProcessAlive(contender.claim.claimantPid) {
+                liveContenders.append(contender)
+            } else {
+                try? fileManager.removeItem(at: contender.url)
+            }
         }
-
-        guard (try? readStorageRecoveryClaim(from: takeoverURL)) == abandonedClaim else { return nil }
-
-        do {
-            try writeStorageRecoveryClaim(claim, to: claimURL)
-        } catch CocoaError.fileNoSuchFile {
-            try? fileManager.removeItem(at: takeoverURL)
-            return nil
-        } catch CocoaError.fileWriteFileExists {
-            try? fileManager.removeItem(at: takeoverURL)
-            return nil
-        } catch {
-            try? fileManager.removeItem(at: takeoverURL)
-            throw error
+        liveContenders.sort {
+            $0.claim.ticket == $1.claim.ticket
+                ? $0.claim.claimantToken.lowercased() < $1.claim.claimantToken.lowercased()
+                : $0.claim.ticket < $1.claim.ticket
         }
-        try? fileManager.removeItem(at: takeoverURL)
-        return (claim, claimURL, canReleaseSafely)
+        guard liveContenders.first?.claim == claim else { return nil }
+        returningLease = true
+        return (claim, claimURL)
     }
 
-    private func releaseStorageRecoveryClaim(
-        _ lease: (claim: StorageRecoveryClaim, url: URL, canReleaseSafely: Bool)
-    ) {
-        guard lease.canReleaseSafely,
-              (try? readStorageRecoveryClaim(from: lease.url)) == lease.claim else { return }
+    private func releaseStorageRecoveryClaim(_ lease: (claim: StorageRecoveryClaim, url: URL)) {
+        guard (try? readStorageRecoveryClaim(from: lease.url)) == lease.claim else { return }
         try? fileManager.removeItem(at: lease.url)
+    }
+
+    private func hasLiveOrUnverifiableLegacyRecoveryClaim(
+        at lockTargetURL: URL,
+        owner: StorageLockOwner
+    ) throws -> Bool {
+        let entries = try fileManager.contentsOfDirectory(at: lockTargetURL, includingPropertiesForKeys: nil)
+        let legacyEntries = entries.filter {
+            $0.lastPathComponent == Self.recoveryClaimFileName
+                || $0.lastPathComponent.hasPrefix(Self.recoveryClaimFileName + ".takeover.")
+        }
+        for entry in legacyEntries {
+            guard let claim = try? readLegacyStorageRecoveryClaim(from: entry),
+                  claim.ownerToken == owner.token,
+                  claim.ownerPid == owner.pid else { return true }
+            if isProcessAlive(claim.claimantPid) { return true }
+        }
+        return false
+    }
+
+    private func readRecoveryClaims(
+        at lockTargetURL: URL,
+        owner: StorageLockOwner
+    ) throws -> [(claim: StorageRecoveryClaim, url: URL)] {
+        let entries = try fileManager.contentsOfDirectory(at: lockTargetURL, includingPropertiesForKeys: nil)
+        var result: [(claim: StorageRecoveryClaim, url: URL)] = []
+        for entry in entries {
+            guard entry.lastPathComponent.hasPrefix(Self.recoveryClaimPrefix) else { continue }
+            let entryToken = String(entry.lastPathComponent.dropFirst(Self.recoveryClaimPrefix.count))
+            guard UUID(uuidString: entryToken) != nil else { continue }
+            let claim: StorageRecoveryClaim
+            do {
+                claim = try readStorageRecoveryClaim(from: entry)
+            } catch CocoaError.fileNoSuchFile {
+                continue
+            } catch {
+                throw StorageLockError.couldNotVerifyRecovery
+            }
+            guard claim.ownerToken == owner.token,
+                  claim.ownerPid == owner.pid,
+                  claim.claimantToken.caseInsensitiveCompare(entryToken) == .orderedSame else {
+                throw StorageLockError.couldNotVerifyRecovery
+            }
+            result.append((claim, entry))
+        }
+        return result
+    }
+
+    private func readRecoveryChoosingRecords(
+        at lockTargetURL: URL,
+        owner: StorageLockOwner
+    ) throws -> [(claim: LegacyStorageRecoveryClaim, url: URL)] {
+        let entries = try fileManager.contentsOfDirectory(at: lockTargetURL, includingPropertiesForKeys: nil)
+        var result: [(claim: LegacyStorageRecoveryClaim, url: URL)] = []
+        for entry in entries {
+            guard entry.lastPathComponent.hasPrefix(Self.recoveryChoosingPrefix) else { continue }
+            let entryToken = String(entry.lastPathComponent.dropFirst(Self.recoveryChoosingPrefix.count))
+            guard UUID(uuidString: entryToken) != nil else { continue }
+            let claim: LegacyStorageRecoveryClaim
+            do {
+                claim = try readLegacyStorageRecoveryClaim(from: entry)
+            } catch CocoaError.fileNoSuchFile {
+                continue
+            } catch {
+                throw StorageLockError.couldNotVerifyRecovery
+            }
+            guard claim.ownerToken == owner.token,
+                  claim.ownerPid == owner.pid,
+                  claim.claimantToken.caseInsensitiveCompare(entryToken) == .orderedSame else {
+                throw StorageLockError.couldNotVerifyRecovery
+            }
+            result.append((claim, entry))
+        }
+        return result
     }
 
     private func removeClaimedStorageLock(at lockURL: URL, ownerURL: URL) throws {
@@ -319,12 +408,9 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
             ? try fileManager.destinationOfSymbolicLink(atPath: lockURL.path)
             : nil
         try fileManager.removeItem(at: ownerURL)
-        let recoveryClaimURL = lockURL.appendingPathComponent(Self.recoveryClaimFileName, isDirectory: false)
-        if fileManager.fileExists(atPath: recoveryClaimURL.path) {
-            try fileManager.removeItem(at: recoveryClaimURL)
-        }
         for entry in try fileManager.contentsOfDirectory(at: lockURL, includingPropertiesForKeys: nil)
-        where entry.lastPathComponent.hasPrefix("\(Self.recoveryClaimFileName).takeover.") {
+        where entry.lastPathComponent == Self.recoveryClaimFileName
+            || entry.lastPathComponent.hasPrefix(Self.recoveryClaimFileName + ".") {
             try fileManager.removeItem(at: entry)
         }
         if let symbolicLinkDestination {
@@ -345,12 +431,23 @@ final class JSONDeepLinkFileStorage: DeepLinkFileStorage {
         try JSONDecoder().decode(StorageLockOwner.self, from: Data(contentsOf: ownerURL))
     }
 
-    private func writeStorageRecoveryClaim(_ claim: StorageRecoveryClaim, to claimURL: URL) throws {
-        try JSONEncoder().encode(claim).write(to: claimURL, options: .withoutOverwriting)
+    private func publishRecoveryRecord<T: Encodable>(_ claim: T, to claimURL: URL) throws {
+        let temporaryURL = URL(fileURLWithPath: claimURL.path + ".tmp." + UUID().uuidString)
+        do {
+            try JSONEncoder().encode(claim).write(to: temporaryURL, options: .withoutOverwriting)
+            try fileManager.moveItem(at: temporaryURL, to: claimURL)
+        } catch {
+            try? fileManager.removeItem(at: temporaryURL)
+            throw error
+        }
     }
 
     private func readStorageRecoveryClaim(from claimURL: URL) throws -> StorageRecoveryClaim {
         try JSONDecoder().decode(StorageRecoveryClaim.self, from: Data(contentsOf: claimURL))
+    }
+
+    private func readLegacyStorageRecoveryClaim(from claimURL: URL) throws -> LegacyStorageRecoveryClaim {
+        try JSONDecoder().decode(LegacyStorageRecoveryClaim.self, from: Data(contentsOf: claimURL))
     }
 
     private func isProcessAlive(_ pid: Int32) -> Bool {
@@ -450,6 +547,55 @@ private struct StorageRecoveryClaim: Codable, Equatable {
     let ownerPid: Int32
     let claimantToken: String
     let claimantPid: Int32
+    let ticket: Int
+
+    init(ownerToken: String, ownerPid: Int32, claimantToken: String, claimantPid: Int32, ticket: Int) {
+        schemaVersion = 2
+        self.ownerToken = ownerToken
+        self.ownerPid = ownerPid
+        self.claimantToken = claimantToken
+        self.claimantPid = claimantPid
+        self.ticket = ticket
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decode(Int.self, forKey: .schemaVersion)
+        ownerToken = try container.decode(String.self, forKey: .ownerToken)
+        ownerPid = try container.decode(Int32.self, forKey: .ownerPid)
+        claimantToken = try container.decode(String.self, forKey: .claimantToken)
+        claimantPid = try container.decode(Int32.self, forKey: .claimantPid)
+        ticket = try container.decode(Int.self, forKey: .ticket)
+        guard schemaVersion == 2,
+              ownerToken.isEmpty == false,
+              ownerPid > 0,
+              claimantToken.isEmpty == false,
+              claimantPid > 0,
+              ticket > 0 else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .schemaVersion,
+                in: container,
+                debugDescription: "Unsupported storage recovery claim metadata."
+            )
+        }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion
+        case ownerToken
+        case ownerPid
+        case claimantToken
+        case claimantPid
+        case ticket
+    }
+}
+
+private struct LegacyStorageRecoveryClaim: Codable, Equatable {
+    let schemaVersion: Int
+    let ownerToken: String
+    let ownerPid: Int32
+    let claimantToken: String
+    let claimantPid: Int32
 
     init(ownerToken: String, ownerPid: Int32, claimantToken: String, claimantPid: Int32) {
         schemaVersion = 1
@@ -474,7 +620,7 @@ private struct StorageRecoveryClaim: Codable, Equatable {
             throw DecodingError.dataCorruptedError(
                 forKey: .schemaVersion,
                 in: container,
-                debugDescription: "Unsupported storage recovery claim metadata."
+                debugDescription: "Unsupported legacy storage recovery claim metadata."
             )
         }
     }
@@ -492,6 +638,7 @@ private enum StorageLockError: LocalizedError {
     case timedOut
     case ownershipChanged
     case couldNotVerifyOwnership(Error)
+    case couldNotVerifyRecovery
     case ownerlessLegacyLock
 
     var errorDescription: String? {
@@ -502,6 +649,8 @@ private enum StorageLockError: LocalizedError {
             "Storage lock ownership changed while updating deep links; the replacement lock was left intact."
         case let .couldNotVerifyOwnership(error):
             "Could not verify storage lock ownership: \(error.localizedDescription)"
+        case .couldNotVerifyRecovery:
+            "Could not verify storage recovery ownership; the storage lock was left intact."
         case .ownerlessLegacyLock:
             "Simulator Deep Linker found an unfinished storage update from an older version. Quit Simulator Deep Linker and Raycast, remove the .simulator-deep-linker.lock folder next to your storage file, then try again."
         }
